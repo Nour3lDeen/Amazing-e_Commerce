@@ -11,7 +11,7 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor,
     this.elevationColor,
     this.elevation,
-    this.borderRadius,
+    this.borderRadius, this.gradient,
   });
 
   final void Function()? onPressed;
@@ -20,6 +20,7 @@ class CustomButton extends StatelessWidget {
   final Color? elevationColor;
   final double? elevation;
   final double? borderRadius;
+  final Gradient? gradient;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class CustomButton extends StatelessWidget {
           decoration: BoxDecoration(
               color: backgroundColor ?? AppColors.primaryColor,
               borderRadius: BorderRadius.circular(borderRadius ?? 25.r),
-              gradient: LinearGradient(
+              gradient: gradient??LinearGradient(
                   colors: [
                     HexColor('#39FAD9'),
                     HexColor('#03A186'),

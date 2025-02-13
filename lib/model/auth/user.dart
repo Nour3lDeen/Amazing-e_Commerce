@@ -64,6 +64,12 @@ class User {
     }
     return data;
   }
+  @override
+  String toString() {
+    return 'User{id: $id, email: $email, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, '
+        'firstName: $firstName, lastName: $lastName, mobile: $mobile, dateOfBirth: $dateOfBirth, gender: $gender, '
+        'avatar: $avatar, addresses: $addresses}';
+  }
 }
 
 class Addresses {
@@ -137,4 +143,5 @@ class Addresses {
     data['updated_at'] = updatedAt;
     return data;
   }
+
 }

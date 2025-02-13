@@ -36,3 +36,5 @@ final class AuthDateChanged extends AuthState {
 
   AuthDateChanged(this.formattedDate);
 }
+
+final class AuthLogoutSuccessState extends AuthState {}

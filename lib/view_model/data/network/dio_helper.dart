@@ -19,7 +19,7 @@ class DioHelper {
     try {
       if (withToken!) {
         _dio.options.headers.addAll({
-          'Authorization': 'Bearer${SharedHelper.getData(SharedKeys.token)}',
+          'Authorization': 'Bearer ${SharedHelper.getData(SharedKeys.token)}',
         });
       }
       Response response =
@@ -32,7 +32,7 @@ class DioHelper {
 
   static Future<Response> post({
     required String path,
-    Map<String, dynamic>? body,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     bool? withToken = false,
 
@@ -40,7 +40,7 @@ class DioHelper {
     try {
       if (withToken!) {
         _dio.options.headers.addAll({
-          'Authorization': 'Bearer${SharedHelper.getData(SharedKeys.token)}',
+          'Authorization': 'Bearer ${SharedHelper.getData(SharedKeys.token)}',
         });
       }
       Response response =
@@ -60,7 +60,7 @@ class DioHelper {
     try {
       if (withToken!) {
         _dio.options.headers.addAll({
-          'Authorization': 'Bearer${SharedHelper.getData(SharedKeys.token)}',
+          'Authorization': 'Bearer ${SharedHelper.getData(SharedKeys.token)}',
         });
       }
       Response response =
@@ -80,7 +80,7 @@ class DioHelper {
     try {
       if (withToken!) {
         _dio.options.headers.addAll({
-          'Authorization': 'Bearer${SharedHelper.getData(SharedKeys.token)}',
+          'Authorization': 'Bearer ${SharedHelper.getData(SharedKeys.token)}',
         });
       }
       Response response =
@@ -100,7 +100,7 @@ class DioHelper {
     try {
       if (withToken!) {
         _dio.options.headers.addAll({
-          'Authorization': 'Bearer${SharedHelper.getData(SharedKeys.token)}',
+          'Authorization': 'Bearer ${SharedHelper.getData(SharedKeys.token)}',
         });
       }
       Response response =

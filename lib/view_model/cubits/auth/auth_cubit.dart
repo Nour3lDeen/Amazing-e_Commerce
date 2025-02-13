@@ -1,10 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:ecommerce/view_model/cubits/home/bottom_nav_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 import '../../../model/auth/user.dart';
+import '../../../translation/locale_keys.g.dart';
 import '../../data/local/shared_helper.dart';
 import '../../data/local/shared_keys.dart';
 import '../../data/network/dio_helper.dart';
@@ -18,6 +21,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   static AuthCubit get(context) => BlocProvider.of<AuthCubit>(context);
 
+  User? user;
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
 
@@ -42,8 +46,8 @@ class AuthCubit extends Cubit<AuthState> {
   TextEditingController registerGenderController = TextEditingController();
   TextEditingController registerDateController = TextEditingController();
 
-  bool showPassword = true;
   bool rememberMe = false;
+  bool showPassword = true;
   final emailRegExp = RegExp(
     r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
     caseSensitive: false,
@@ -66,7 +70,8 @@ class AuthCubit extends Cubit<AuthState> {
   String? selectedGender;
 
   // List of gender options in Arabic
-  final List<String> genders = ['ذكر', 'أنثى'];
+  final List<String> genders = [LocaleKeys.male.tr(), LocaleKeys.female.tr()];
+
 
   // Method to change selected gender
   void changeGender(String? gender) {
@@ -77,7 +82,8 @@ class AuthCubit extends Cubit<AuthState> {
   void updateBirthDate(DateTime date) {
     // Format the date as YYYY-MM-DD
     final formattedDate =
-        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day
+        .toString().padLeft(2, '0')}";
     registerDateController.text = formattedDate;
     emit(AuthDateChanged(formattedDate)); // Emit a state for UI updates
   }
@@ -135,13 +141,30 @@ class AuthCubit extends Cubit<AuthState> {
     ).then((value) {
       debugPrint('Response: ${value.data}');
 
-      // Check for statusCode or data structure in the response
+
       if (value.data != null && value.data['statusCode'] == 200) {
-        // Login successful
         final token = value.data['data']['access_token'];
-        final user = User.fromJson(value.data['data']['user']);
-        SharedHelper.saveData(SharedKeys.token, token);
-        debugPrint('Token: $token');
+
+        if (value.data['data'] != null &&
+            value.data['data']['user_data'] != null) {
+          user = User.fromJson(value.data['data']['user_data']);
+          SharedHelper.saveData(SharedKeys.firstName, user!.firstName);
+          SharedHelper.saveData(SharedKeys.secondName, user!.lastName);
+          SharedHelper.saveData(SharedKeys.avatar, user!.avatar);
+          SharedHelper.saveData(SharedKeys.token, token);
+          debugPrint('Token: $token');
+          debugPrint('User: ${user.toString()}');
+        } else {
+          debugPrint('Error: User data is missing or null');
+        }
+        if (rememberMe) {
+          SharedHelper.saveData(SharedKeys.isLogged, true);
+          debugPrint('isLogged: ${SharedHelper.getData(SharedKeys.isLogged)}');
+        } else {
+          SharedHelper.saveData(SharedKeys.isLogged, false);
+          debugPrint('isLogged: ${SharedHelper.getData(SharedKeys.isLogged)}');
+        }
+        clearData();
         emit(LoginSuccessState());
       } else if (value.data['statusCode'] != 200) {
         // Handle specific error cases
@@ -217,5 +240,18 @@ class AuthCubit extends Cubit<AuthState> {
         debugPrint('Unhandled error: $error');
       }
     });
+  }
+
+  void logout(context) {
+    SharedHelper.removeKey(SharedKeys.token);
+    SharedHelper.removeKey(SharedKeys.isLogged);
+    SharedHelper.removeKey(SharedKeys.firstName);
+    SharedHelper.removeKey(SharedKeys.secondName);
+    SharedHelper.removeKey(SharedKeys.avatar);
+    SharedHelper.saveData(SharedKeys.isLogged, false);
+    BottomNavCubit.get(context).changeIndex(0);
+    viewToast('تم تسجيل الخروج', context, AppColors.red);
+    debugPrint('isLogged: ${SharedHelper.getData(SharedKeys.isLogged)}');
+    emit(AuthLogoutSuccessState());
   }
 }

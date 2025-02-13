@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,7 +16,7 @@ class CustomDropdownFormField extends StatelessWidget {
     required this.items,
     required this.onChanged,
     required this.value,
-    this.validator,
+    this.validator, this.fillColor, this.hintColor, this.borderRadius, this.hasShadow,
   });
 
   final String title;
@@ -26,9 +27,16 @@ class CustomDropdownFormField extends StatelessWidget {
   final String? value;
   final void Function(String?) onChanged;
   final String? Function(String?)? validator;
-
+final Color? fillColor;
+  final Color? hintColor;
+  final double? borderRadius;
+  final bool? hasShadow;
   @override
   Widget build(BuildContext context) {
+    final locale = context.locale;
+
+    // Determine text alignment and direction based on locale
+    final isRTL = locale.languageCode == 'ar';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -40,73 +48,80 @@ class CustomDropdownFormField extends StatelessWidget {
               SizedBox(
                 width: 8.w,
               ),
-              TextBody14(
+              TextBody12(
                 title,
-                textAlign: TextAlign.right,
+                textAlign: isRTL ? TextAlign.right : TextAlign.left,
                 fontWeight: FontWeight.bold,
                 color: titleColor,
               ),
             ],
           ),
         ),
-        DropdownButtonFormField<String>(
-          value: value,
-          items: items
-              .map(
-                (item) => DropdownMenuItem<String>(
-              value: item,
-              child: Align(
-                alignment: Alignment.centerRight, // Align item text to the right
-                child: Text(
-                  item,
-                  style: TextStyle(
-                    color: AppColors.black,
-                    fontFamily: 'Lamar',
-                  ),
-                  textAlign: TextAlign.right, // Align text to the right
-                ),
-              ),
-            ),
-          )
-              .toList(),
-          onChanged: onChanged,
-          validator: validator,
-          hint: Align(
-            alignment: Alignment.centerRight, // Align hint to the right
-            child: TextBody14(
-              hint,
-              color: AppColors.grey,
+        Container(
+          decoration: hasShadow==true? BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(14.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                offset: Offset(0.0, 3.h),
+                blurRadius: 6.0,
+              )
+            ]
+          ):null,
+          child: DropdownButtonFormField<String>(
 
-              textAlign: TextAlign.right, // Ensure right alignment
+            isExpanded: true,
+            value: value,
+            items: items
+                .map(
+                  (item) => DropdownMenuItem<String>(
+                    value: item,
+                    child: TextBody14(
+                      item,
+                      overflow: TextOverflow.ellipsis,
+                      color: AppColors.black,
+                    ),
+                  ),
+                )
+                .toList(),
+          isDense: true,
+            onChanged: onChanged,
+            validator: validator,
+            hint: TextBody12(
+              fontSize: 10.sp,
+              hint,
+              color: hintColor ?? AppColors.grey,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.only(right: 16.w, left: 4.w, bottom: 5.h),
-            fillColor: AppColors.white.withOpacity(0.4),
-            filled: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide.none,
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide.none,
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide.none,
+            decoration: InputDecoration(
+              contentPadding:
+                  EdgeInsets.only(right: 8.w, left: 8.w, bottom: 5.h),
+              fillColor: fillColor ?? AppColors.white.withValues(alpha: 0.4),
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
+                borderSide: BorderSide.none,
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
+                borderSide: BorderSide.none,
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
         )
-
       ],
     );
   }

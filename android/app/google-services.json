@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "433470979267",
+    "project_id": "amazing-ecommerce-9daa3",
+    "storage_bucket": "amazing-ecommerce-9daa3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433470979267:android:53d2d28603158484b6f676",
+        "android_client_info": {
+          "package_name": "sa.amazing.ecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxdJDqWkekpqKieOiwgDTz99P3mvQD0Tg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

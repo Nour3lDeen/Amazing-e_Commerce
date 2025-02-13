@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:ecommerce/view_model/cubits/auth/auth_cubit.dart';
 import 'package:ecommerce/view_model/utils/app_colors/app_colors.dart';
 import 'package:ecommerce/view_model/utils/navigation/navigation.dart';
@@ -77,114 +79,120 @@ class ForgetPasswordScreen extends StatelessWidget {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: 16.w, vertical: 48.h),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withOpacity(0.45),
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 16.w, vertical: 16.h),
-                      child: Form(
-                        key: AuthCubit.get(context).forgetPasswordFormKey,
-                        child: Column(
-                          children: [
-                            TextBody14(
-                                fontSize: 14.sp,
-                                'قم بإدخل البريد الإلكتروني الخاص بالحساب وسيتم إرسال رمز مكون من 5 أرقام لتأكيد عملية الدخول.'),
-                            SizedBox(
-                              height: 20.h,
-                            ),
-                            CustomTextFormField(
-                              title: 'البريد الإلكتروني',
-                              hint: 'أدخل البريد الإلكتروني',
-                              icon: AppAssets.email,
-                              titleColor: AppColors.black,
-                              isPassword: false,
-                              controller: AuthCubit.get(context)
-                                  .forgetPasswordEmailController,
-                              onIconTap: () {},
-                              suffixIcon: const Icon(Icons.email),
-                              obscureText: false,
-                              validator: (value) {
-                                if ((value ?? '').trim().isEmpty) {
-                                  return 'الرجاء إدخال البريد الإلكتروني';
-                                }
-                                return null;
-                              },
-                              textInputAction: TextInputAction.done,
-                              keyboardType: TextInputType.emailAddress,
-                            ),
-                            SizedBox(
-                              height: 24.h,
-                            ),
-                            CustomButton(
-                              onPressed: () {
-                                if (AuthCubit.get(context)
-                                    .forgetPasswordFormKey
-                                    .currentState!
-                                    .validate()) {
-                                  if (!AuthCubit.get(context).validateEmail(
-                                      AuthCubit.get(context)
-                                          .forgetPasswordEmailController
-                                          .text)) {
-                                    showToast('البريد الإلكتروني غير صحيح',
-                                        context: context,
-                                        animation: StyledToastAnimation.scale,
-                                        reverseAnimation:
-                                            StyledToastAnimation.fade,
-                                        position: StyledToastPosition.bottom,
-                                        animDuration:
-                                            const Duration(seconds: 1),
-                                        duration: const Duration(seconds: 2),
-                                        curve: Curves.elasticOut,
-                                        reverseCurve: Curves.linear,
-                                        borderRadius:
-                                            BorderRadius.circular(25.r),
-                                        backgroundColor: Colors.red,
-                                        isHideKeyboard: true,
-                                        textStyle: TextStyle(
-                                          color: AppColors.white,
-                                          fontSize: 12.sp,
-                                          fontFamily: 'Lamar',
-                                        ));
-                                  } else {
-                                    Navigation.push(context, const OtpScreen());
-                                  }
-                                }
-                              },
-                              borderRadius: 14.r,
-                              child: SizedBox(
-                                height: 40.h,
-                                width: double.infinity,
-                                child: Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 16.w),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      TextTitle(
-                                        'إرسال الرمز',
-                                        color: AppColors.black,
-                                        fontSize: 16.sp,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16.r),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha:0.35),
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 16.h),
+                          child: Form(
+                            key: AuthCubit.get(context).forgetPasswordFormKey,
+                            child: Column(
+                              children: [
+                                TextBody14(
+                                    fontSize: 14.sp,
+                                    'قم بإدخل البريد الإلكتروني الخاص بالحساب وسيتم إرسال رمز مكون من 5 أرقام لتأكيد عملية الدخول.'),
+                                SizedBox(
+                                  height: 20.h,
+                                ),
+                                CustomTextFormField(
+                                  title: 'البريد الإلكتروني',
+                                  hint: 'أدخل البريد الإلكتروني',
+                                  icon: AppAssets.email,
+                                  titleColor: AppColors.black,
+                                  isPassword: false,
+                                  controller: AuthCubit.get(context)
+                                      .forgetPasswordEmailController,
+                                  onIconTap: () {},
+                                  suffixIcon: const Icon(Icons.email),
+                                  obscureText: false,
+                                  validator: (value) {
+                                    if ((value ?? '').trim().isEmpty) {
+                                      return 'الرجاء إدخال البريد الإلكتروني';
+                                    }
+                                    return null;
+                                  },
+                                  textInputAction: TextInputAction.done,
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                                SizedBox(
+                                  height: 24.h,
+                                ),
+                                CustomButton(
+                                  onPressed: () {
+                                    if (AuthCubit.get(context)
+                                        .forgetPasswordFormKey
+                                        .currentState!
+                                        .validate()) {
+                                      if (!AuthCubit.get(context).validateEmail(
+                                          AuthCubit.get(context)
+                                              .forgetPasswordEmailController
+                                              .text)) {
+                                        showToast('البريد الإلكتروني غير صحيح',
+                                            context: context,
+                                            animation: StyledToastAnimation.scale,
+                                            reverseAnimation:
+                                                StyledToastAnimation.fade,
+                                            position: StyledToastPosition.bottom,
+                                            animDuration:
+                                                const Duration(seconds: 1),
+                                            duration: const Duration(seconds: 2),
+                                            curve: Curves.elasticOut,
+                                            reverseCurve: Curves.linear,
+                                            borderRadius:
+                                                BorderRadius.circular(25.r),
+                                            backgroundColor: Colors.red,
+                                            isHideKeyboard: true,
+                                            textStyle: TextStyle(
+                                              color: AppColors.white,
+                                              fontSize: 12.sp,
+                                              fontFamily: 'Lamar',
+                                            ));
+                                      } else {
+                                        Navigation.push(context, const OtpScreen());
+                                      }
+                                    }
+                                  },
+                                  borderRadius: 14.r,
+                                  child: SizedBox(
+                                    height: 40.h,
+                                    width: double.infinity,
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 16.w),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          TextTitle(
+                                            'إرسال الرمز',
+                                            color: AppColors.black,
+                                            fontSize: 16.sp,
+                                          ),
+                                          SizedBox(
+                                            width: 8.w,
+                                          ),
+                                          SvgPicture.asset(
+                                            AppAssets.send,
+                                            height: 20.h,
+                                            width: 20.w,
+                                          )
+                                        ],
                                       ),
-                                      SizedBox(
-                                        width: 8.w,
-                                      ),
-                                      SvgPicture.asset(
-                                        AppAssets.send,
-                                        height: 20.h,
-                                        width: 20.w,
-                                      )
-                                    ],
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
