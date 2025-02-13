@@ -40,7 +40,6 @@ class OthersScreen extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         // final authCubit = AuthCubit.get(context);
-        bool chat = Random().nextBool();
         bool isLoggedIn = SharedHelper.getData(SharedKeys.token) != null;
         return Stack(
           children: [
@@ -349,9 +348,8 @@ class OthersScreen extends StatelessWidget {
                                       icon: AppAssets.policy),
                                   OthersCard(
                                       onTap: () {
-                                        debugPrint(chat.toString());
                                         if (isLoggedIn) {
-                                          if (chat) {
+                                          if (false) {
                                             showDialog(
                                               barrierDismissible: true,
                                               context: context,

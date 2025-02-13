@@ -1,0 +1,36 @@
+<svg width="273" height="91" viewBox="0 0 273 91" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M29.5 0.000437737H19.9998V60.0003H29.5V0.000437737Z" fill="white"/>
+<path d="M10.5002 0.000589371H1V60.0004H10.5002V0.000589371Z" fill="white"/>
+<path d="M29.4998 28.2353H1V31.7648H29.4998V28.2353Z" fill="white"/>
+<path d="M29.4998 0.000589371H1V3.5301H29.4998V0.000589371Z" fill="white"/>
+<path d="M47.2001 0.000435829H41.5V60.0003H47.2001V0.000435829Z" fill="white"/>
+<path d="M58.6 0.000436783H52.8999V60.0003H58.6V0.000436783Z" fill="white"/>
+<path d="M69.9998 0.000436783H64.2997V60.0003H69.9998V0.000436783Z" fill="white"/>
+<path d="M70 0.000435829H41.5V3.52995H70V0.000435829Z" fill="white"/>
+<path d="M91.5002 0.000435829H82V60.0003H91.5002V0.000435829Z" fill="white"/>
+<path d="M110.5 0.000436783H101V60.0003H110.5V0.000436783Z" fill="white"/>
+<path d="M110.5 28.2353H82V31.7648H110.5V28.2353Z" fill="white"/>
+<path d="M110.5 0.000435829H82V3.52995H110.5V0.000435829Z" fill="white"/>
+<path d="M151 4.673e-05H122.5V3.52956H151V4.673e-05Z" fill="white"/>
+<path d="M122.5 56.4712V59.9929V60.0007H151V56.4712H122.5Z" fill="white"/>
+<path d="M141.5 4.673e-05L122.5 56.4705V59.9999H132L151 3.52956V4.673e-05H141.5Z" fill="white"/>
+<path d="M191.5 9.53674e-07H163V3.52951H191.5V9.53674e-07Z" fill="white"/>
+<path d="M191.5 56.4712H163V60.0007H191.5V56.4712Z" fill="white"/>
+<path d="M182 1.90735e-06H172.5V59.9998H182V1.90735e-06Z" fill="white"/>
+<path d="M213 0.000435829H203.5V60.0003H213V0.000435829Z" fill="white"/>
+<path d="M232 0.000436783H222.501V60.0003H232V0.000436783Z" fill="white"/>
+<path d="M203.5 0.000435829L222.5 60.0003H232L213 0.000435829H203.5Z" fill="white"/>
+<path d="M272.5 9.53674e-07H244V3.52951H272.5V9.53674e-07Z" fill="white"/>
+<path d="M249.7 9.53674e-07H244V59.9998H249.7V9.53674e-07Z" fill="white"/>
+<path d="M272.5 56.4712H244V60.0007H272.5V56.4712Z" fill="white"/>
+<path d="M272.5 7.05908H255.4V10.5886H272.5V7.05908Z" fill="white"/>
+<path d="M272.499 7.05908H266.8V60.0002H272.499V7.05908Z" fill="white"/>
+<path d="M261.1 7.05908H255.4V52.9415H261.1V7.05908Z" fill="white"/>
+<path d="M1 66.0007H272.5C126.468 66.3 33.5798 74.5111 31.0738 75.4567C28.5679 76.4022 4.21678 78.2248 1 90.0007V66.0007Z" fill="url(#paint0_radial_2404_5020)" stroke="white" stroke-width="0.6" stroke-linejoin="round"/>
+<defs>
+<radialGradient id="paint0_radial_2404_5020" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(136.75 78.0007) scale(135.75 12)">
+<stop stop-color="#F1F1F1"/>
+<stop offset="1" stop-color="#E6E6E6"/>
+</radialGradient>
+</defs>
+</svg>

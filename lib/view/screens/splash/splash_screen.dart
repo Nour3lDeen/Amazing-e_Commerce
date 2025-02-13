@@ -91,8 +91,8 @@ class _SplashScreenState extends State<SplashScreen>
                 SlideTransition(
                   position: _logoAnimation,
                   child: SvgPicture.asset(
-                    AppAssets.logo,
-                    height: 40.h,
+                    'assets/svgs/white_logo.svg',
+                    height: 70.h,
                   ),
                 ),
                 SizedBox(height: 8.h),
