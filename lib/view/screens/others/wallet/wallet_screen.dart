@@ -1,7 +1,9 @@
 import 'dart:ui';
+import 'package:ecommerce/view_model/cubits/auth/auth_cubit.dart';
 import 'package:ecommerce/view_model/data/local/shared_helper.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -35,10 +37,8 @@ class WalletScreen extends StatelessWidget {
               fit: BoxFit.cover,
             )),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
@@ -78,7 +78,6 @@ class WalletScreen extends StatelessWidget {
                           color: Colors.black.withValues(alpha: 0.15),
                           offset: Offset(1.w, 3.h),
                           blurRadius: 6,
-
                         ),
                       ],
                       fontSize: 18.sp,
@@ -125,7 +124,6 @@ class WalletScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
                       width: 240.w,
@@ -153,19 +151,25 @@ class WalletScreen extends StatelessWidget {
                       child: Column(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            TextBody14(
+                            const TextBody14(
                               'رصيد المحفظة الخاص بكم',
                               fontWeight: FontWeight.bold,
                             ),
-                            GradientText(
-                              '00.00  ر.س',
-                              gradient: LinearGradient(colors: [
-                                HexColor('#D9D04D'),
-                                HexColor('#988F06'),
-                              ]),
-                              fontSize: 20.sp,
+                            BlocBuilder<AuthCubit, AuthState>(
+                              builder: (context, state) {
+                                debugPrint(
+                                  '${AuthCubit.get(context).user?.wallet ?? 0}  ر.س',
+                                );
+                                return GradientText(
+                                  '${AuthCubit.get(context).user?.wallet ?? 0}  ر.س',
+                                  gradient: LinearGradient(colors: [
+                                    HexColor('#D9D04D'),
+                                    HexColor('#988F06'),
+                                  ]),
+                                  fontSize: 20.sp,
+                                );
+                              },
                             )
                           ]),
                     ),
@@ -176,7 +180,6 @@ class WalletScreen extends StatelessWidget {
                       child: Container(
                         width: double.infinity,
                         height: 36.h,
-
                         decoration: BoxDecoration(
                             gradient: LinearGradient(colors: [
                               HexColor('#39FAD9'),
@@ -188,7 +191,6 @@ class WalletScreen extends StatelessWidget {
                         child: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
                             spacing: 6.w,
                             children: [
                               TextBody14(
@@ -196,7 +198,10 @@ class WalletScreen extends StatelessWidget {
                                 fontSize: 16.sp,
                                 color: AppColors.white,
                               ),
-                            SvgPicture.asset(AppAssets.backIcon2,height: 18.h,)
+                              SvgPicture.asset(
+                                AppAssets.backIcon2,
+                                height: 18.h,
+                              )
                             ]),
                       ),
                     ),

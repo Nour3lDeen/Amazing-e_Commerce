@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:ecommerce/translation/locale_keys.g.dart';
+import 'package:ecommerce/view/screens/auth/confirm_email_screen/confirm_email_screen.dart';
+import 'package:ecommerce/view_model/utils/navigation/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -72,20 +74,17 @@ class RegisterScreen extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.only(top: 115.h),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SvgPicture.asset(
-                  AppAssets.logo,
-                  height: 30.h,
+                  AppAssets.blackLogo,
+                  height: 40.h,
                   colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                 ),
                 SizedBox(
                   height: 8.h,
                 ),
                 Align(
-                  alignment: Alignment.center,
                   child: TextBody12(
                     LocaleKeys.register.tr(),
                     textAlign: TextAlign.center,
@@ -97,7 +96,7 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 Padding(
                   padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 48.h),
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 57.h),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16.r),
                     child: BackdropFilter(
@@ -113,7 +112,9 @@ class RegisterScreen extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 16.w, vertical: 16.h),
                           child: Form(
-                            key: AuthCubit.get(context).registerFormKey,
+                            key: AuthCubit
+                                .get(context)
+                                .registerFormKey,
                             child: Column(
                               children: [
                                 Row(
@@ -125,13 +126,16 @@ class RegisterScreen extends StatelessWidget {
                                         icon: AppAssets.profile,
                                         titleColor: AppColors.black,
                                         isPassword: false,
-                                        controller: AuthCubit.get(context)
+                                        controller: AuthCubit
+                                            .get(context)
                                             .registerFirstNameController,
                                         onIconTap: () {},
                                         suffixIcon: const Icon(Icons.email),
                                         obscureText: false,
                                         validator: (value) {
-                                          if ((value ?? '').trim().isEmpty) {
+                                          if ((value ?? '')
+                                              .trim()
+                                              .isEmpty) {
                                             return LocaleKeys.firstNameError
                                                 .tr();
                                           }
@@ -149,13 +153,16 @@ class RegisterScreen extends StatelessWidget {
                                         icon: AppAssets.family,
                                         titleColor: AppColors.black,
                                         isPassword: false,
-                                        controller: AuthCubit.get(context)
+                                        controller: AuthCubit
+                                            .get(context)
                                             .registerSecondNameController,
                                         onIconTap: () {},
                                         suffixIcon: const Icon(Icons.email),
                                         obscureText: false,
                                         validator: (value) {
-                                          if ((value ?? '').trim().isEmpty) {
+                                          if ((value ?? '')
+                                              .trim()
+                                              .isEmpty) {
                                             return LocaleKeys.lastNameError
                                                 .tr();
                                           }
@@ -176,13 +183,16 @@ class RegisterScreen extends StatelessWidget {
                                   icon: AppAssets.email,
                                   titleColor: AppColors.black,
                                   isPassword: false,
-                                  controller: AuthCubit.get(context)
+                                  controller: AuthCubit
+                                      .get(context)
                                       .registerEmailController,
                                   onIconTap: () {},
                                   suffixIcon: const Icon(Icons.email),
                                   obscureText: false,
                                   validator: (value) {
-                                    if ((value ?? '').trim().isEmpty) {
+                                    if ((value ?? '')
+                                        .trim()
+                                        .isEmpty) {
                                       return LocaleKeys.emailError.tr();
                                     }
                                     return null;
@@ -199,13 +209,16 @@ class RegisterScreen extends StatelessWidget {
                                   icon: AppAssets.call,
                                   titleColor: AppColors.black,
                                   isPassword: false,
-                                  controller: AuthCubit.get(context)
+                                  controller: AuthCubit
+                                      .get(context)
                                       .registerNumberController,
                                   onIconTap: () {},
                                   suffixIcon: const Icon(Icons.email),
                                   obscureText: false,
                                   validator: (value) {
-                                    if ((value ?? '').trim().isEmpty) {
+                                    if ((value ?? '')
+                                        .trim()
+                                        .isEmpty) {
                                       return LocaleKeys.phoneNumberError.tr();
                                     }
                                     return null;
@@ -340,30 +353,40 @@ class RegisterScreen extends StatelessWidget {
                                       titleColor: AppColors.black,
                                       isPassword: true,
                                       validator: (value) {
-                                        if ((value ?? '').trim().isEmpty) {
+                                        if ((value ?? '')
+                                            .trim()
+                                            .isEmpty) {
                                           return LocaleKeys.passwordError.tr();
                                         }
                                         return null;
                                       },
                                       textInputAction: TextInputAction.done,
                                       obscureText:
-                                          AuthCubit.get(context).showPassword,
-                                      controller: AuthCubit.get(context)
+                                      AuthCubit
+                                          .get(context)
+                                          .passwordVisibility['password']!,
+                                      controller: AuthCubit
+                                          .get(context)
                                           .registerPasswordController,
-                                      onIconTap: AuthCubit.get(context)
-                                          .changePasswordVisibility,
+                                      onIconTap:() {
+                                        AuthCubit
+                                            .get(context)
+                                            .changePasswordVisibility('password');
+                                      },
                                       suffixIcon:
-                                          !AuthCubit.get(context).showPassword
-                                              ? Icon(
-                                                  Icons.visibility,
-                                                  color: AppColors.grey,
-                                                )
-                                              : Icon(
-                                                  Icons.visibility_off,
-                                                  color: AppColors.grey,
-                                                ),
+                                      !AuthCubit
+                                          .get(context)
+                                          .passwordVisibility['password']!
+                                          ? Icon(
+                                        Icons.visibility,
+                                        color: AppColors.grey,
+                                      )
+                                          : Icon(
+                                        Icons.visibility_off,
+                                        color: AppColors.grey,
+                                      ),
                                       keyboardType:
-                                          TextInputType.visiblePassword,
+                                      TextInputType.visiblePassword,
                                     );
                                   },
                                 ),
@@ -373,13 +396,11 @@ class RegisterScreen extends StatelessWidget {
                                 BlocConsumer<AuthCubit, AuthState>(
                                   listener: (context, state) {
                                     if (state is RegisterSuccessState) {
-                                      AuthCubit.get(context).viewToast(
-                                          LocaleKeys.registerSuccess.tr(),
-                                          context,
-                                          Colors.green);
+                                      Navigation.push(context, const ConfirmEmailScreen());
+                                      AuthCubit.get(context).startOtpTimer();
                                     } else if (state is RegisterErrorState) {
                                       AuthCubit.get(context).viewToast(
-                                          state.msg, context, Colors.red);
+                                          state.msg, context, Colors.red,4);
                                     }
                                   },
                                   builder: (context, state) {
@@ -390,32 +411,34 @@ class RegisterScreen extends StatelessWidget {
                                     }
                                     return CustomButton(
                                       onPressed: () {
-                                        if (AuthCubit.get(context)
+                                        if (AuthCubit
+                                            .get(context)
                                             .registerFormKey
                                             .currentState!
                                             .validate()) {
                                           if (!AuthCubit.get(context)
                                               .validateEmail(
-                                                  AuthCubit.get(context)
-                                                      .registerEmailController
-                                                      .text)) {
+                                              AuthCubit
+                                                  .get(context)
+                                                  .registerEmailController
+                                                  .text)) {
                                             showToast(
-                                                LocaleKeys.emailError.tr(),
+                                                'صيغة البريد الإلكتروني غير صحيحة',
                                                 context: context,
                                                 animation:
-                                                    StyledToastAnimation.scale,
+                                                StyledToastAnimation.scale,
                                                 reverseAnimation:
-                                                    StyledToastAnimation.fade,
+                                                StyledToastAnimation.fade,
                                                 position:
-                                                    StyledToastPosition.bottom,
+                                                StyledToastPosition.bottom,
                                                 animDuration:
-                                                    const Duration(seconds: 1),
+                                                const Duration(seconds: 1),
                                                 duration:
-                                                    const Duration(seconds: 2),
+                                                const Duration(seconds: 2),
                                                 curve: Curves.elasticOut,
                                                 reverseCurve: Curves.linear,
                                                 borderRadius:
-                                                    BorderRadius.circular(25.r),
+                                                BorderRadius.circular(25.r),
                                                 backgroundColor: Colors.red,
                                                 isHideKeyboard: true,
                                                 textStyle: TextStyle(
@@ -424,7 +447,7 @@ class RegisterScreen extends StatelessWidget {
                                                   fontFamily: 'Lamar',
                                                 ));
                                           } else {
-                                            AuthCubit.get(context).register();
+                                            AuthCubit.get(context).register(context);
                                           }
                                         }
                                       },

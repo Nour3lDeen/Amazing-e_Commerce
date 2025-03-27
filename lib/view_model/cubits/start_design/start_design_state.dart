@@ -110,3 +110,12 @@ class ImagePickedState extends StartDesignState {
 
   ImagePickedState(this.imageFile);
 }
+final class AddCartItemLoadingState extends StartDesignState {}
+
+final class AddCartItemSuccessState extends StartDesignState {}
+
+final class AddCartItemErrorState extends StartDesignState {
+  final String error;
+
+  AddCartItemErrorState(this.error);
+}

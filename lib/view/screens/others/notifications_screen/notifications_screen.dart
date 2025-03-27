@@ -22,11 +22,12 @@ class NotificationsScreen extends StatelessWidget {
         return Scaffold(
           body: Stack(children: [
             Container(
-              padding: EdgeInsets.symmetric(
+              padding: EdgeInsets.only(
                   // horizontal: 16.w,
-                  vertical: SharedHelper.getData(SharedKeys.platform) == 'ios'
+                  top: SharedHelper.getData(SharedKeys.platform) == 'ios'
                       ? 40.h
-                      : 8.h),
+                      : 50.h,
+                  bottom: 24.h),
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(
@@ -37,7 +38,7 @@ class NotificationsScreen extends StatelessWidget {
               child: ListView(
                 controller: brandCubit.scrollController,
                 clipBehavior: Clip.none,
-                children: [
+                children: const [
                   NotificationComponent(),
                   NotificationComponent(),
                   NotificationComponent(),
@@ -54,7 +55,7 @@ class NotificationsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            CustomAppBar(
+            const CustomAppBar(
               title: 'الإشعارات',
               isOffers: true,
               hasSeasonsDropDown: false,
@@ -71,9 +72,8 @@ class NotificationsScreen extends StatelessWidget {
                         BoxDecoration(shape: BoxShape.circle, boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.15),
-                        spreadRadius: 0,
                         blurRadius: 8,
-                        offset: Offset(0, 1),
+                        offset: const Offset(0, 1),
                       ),
                     ]),
                     child: SvgPicture.asset(

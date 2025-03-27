@@ -1,5 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ecommerce/model/sections_model/sections_model.dart';
 import 'package:ecommerce/view/screens/home/bottom_nav_bar/components/offers_component/product_card.dart';
+import 'package:ecommerce/view_model/cubits/home/bottom_nav_cubit.dart';
+import 'package:ecommerce/view_model/cubits/products/products_cubit.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:ecommerce/view_model/utils/app_assets/app_assets.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +34,7 @@ class BrandsScreen extends StatelessWidget {
             ),
             child: BlocBuilder<BrandCubit, BrandState>(
               builder: (context, state) {
-                final cubit = context.read<BrandCubit>();
+                final cubit = BrandCubit.get(context);
                 return ListView(
                     padding: EdgeInsets.only(top: 90.h),
                     clipBehavior: Clip.none,
@@ -38,7 +42,6 @@ class BrandsScreen extends StatelessWidget {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Transform.translate(
                             offset: Offset(0, -12.h),
@@ -51,9 +54,8 @@ class BrandsScreen extends StatelessWidget {
                                 shadows: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.25),
-                                    spreadRadius: 0,
                                     blurRadius: 10,
-                                    offset: Offset(0, 2),
+                                    offset: const Offset(0, 2),
                                   )
                                 ],
                               ),
@@ -66,7 +68,7 @@ class BrandsScreen extends StatelessWidget {
                               // disableGesture: true,
                               carouselController: cubit.carouselController,
                               items: List.generate(
-                                cubit.brands.length,
+                                cubit.brandsList.length,
                                 (index) => Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -76,7 +78,7 @@ class BrandsScreen extends StatelessWidget {
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          border: index == state.currentIndex
+                                          border: index == cubit.currentIndex
                                               ? Border.all(
                                                   color: HexColor('#71FAE3'),
                                                   width: 2,
@@ -87,7 +89,7 @@ class BrandsScreen extends StatelessWidget {
                                                 ),
                                           borderRadius:
                                               BorderRadius.circular(12.r),
-                                          boxShadow: index == state.currentIndex
+                                          boxShadow: index == cubit.currentIndex
                                               ? [
                                                   BoxShadow(
                                                     color: HexColor('#39FAD9')
@@ -104,7 +106,7 @@ class BrandsScreen extends StatelessWidget {
                                                             alpha: 0.25),
                                                     spreadRadius: 2,
                                                     blurRadius: 5,
-                                                    offset: Offset(0, 2),
+                                                    offset: const Offset(0, 2),
                                                   ),
                                                 ],
                                         ),
@@ -116,12 +118,15 @@ class BrandsScreen extends StatelessWidget {
                                               SizedBox(
                                                 height: 50.h,
                                                 width: 90.w,
-                                                child: Image.asset(
-                                                  cubit.brands[index],
+                                                child: CachedNetworkImage(
+                                                  imageUrl: cubit
+                                                          .brandsList[index]
+                                                          .brand ??
+                                                      '',
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
-                                              if (index != state.currentIndex)
+                                              if (index != cubit.currentIndex)
                                                 Positioned.fill(
                                                   child: Container(
                                                     color: Colors.black
@@ -135,11 +140,11 @@ class BrandsScreen extends StatelessWidget {
                                     ),
                                     SizedBox(height: 8.h),
                                     TextBody14(
-                                      'براند ${index + 1}',
-                                      color: index == state.currentIndex
+                                      '${cubit.brandsList[index].name ?? ''}',
+                                      color: index == cubit.currentIndex
                                           ? AppColors.black
                                           : AppColors.black,
-                                      fontWeight: index == state.currentIndex
+                                      fontWeight: index == cubit.currentIndex
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                     ),
@@ -149,17 +154,13 @@ class BrandsScreen extends StatelessWidget {
                               options: CarouselOptions(
                                 // scrollPhysics: const BouncingScrollPhysics(),
                                 viewportFraction: 0.25.w,
-                                enableInfiniteScroll: true,
-                                animateToClosest: true,
-                                autoPlay: false,
                                 reverse: true,
                                 enlargeCenterPage: true,
-
-                                scrollDirection: Axis.horizontal,
-                                pageSnapping: true,
-                                initialPage: state.currentIndex,
+                                initialPage: cubit.currentIndex,
                                 onPageChanged: (index, reason) {
                                   cubit.setPage(index);
+                                  debugPrint(
+                                      'brand id ${cubit.brandsList[cubit.currentIndex].id}');
                                 },
                               ),
                             ),
@@ -177,9 +178,8 @@ class BrandsScreen extends StatelessWidget {
                                 shadows: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.25),
-                                    spreadRadius: 0,
                                     blurRadius: 10,
-                                    offset: Offset(0, 2),
+                                    offset: const Offset(0, 2),
                                   )
                                 ],
                               ),
@@ -188,132 +188,253 @@ class BrandsScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 16.h),
-                      Center(
-                        child: DropdownButton(
-                          items: [
-                            DropdownMenuItem(
-                              value: 1,
-                              child: TextBody14(
-                                'رجالي',
-                                color: AppColors.black,
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 2,
-                              child: TextBody14(
-                                'أطفالي',
-                                color: AppColors.black,
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 3,
-                              child: TextBody14(
-                                'نسائي',
-                                color: AppColors.black,
-                              ),
-                            ),
-                          ],
-                          value: null,
-                          hint: Container(
-                            height: 28.h,
-                            width: 128.w,
-                            padding: EdgeInsets.symmetric(horizontal: 8.w),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                              gradient: LinearGradient(
-                                colors: [
-                                  HexColor('#31D3C6'),
-                                  HexColor('#208B78'),
-                                ],
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextBody14(
-                                  'رجالي',
-                                  color: AppColors.white,
-                                ),
-                                SizedBox(width: 4.w),
-                                SvgPicture.asset(
-                                  AppAssets.arrowDown,
-                                  height: 10.h,
-                                  width: 10.w,
-                                  colorFilter: ColorFilter.mode(
-                                    AppColors.white,
-                                    BlendMode.srcIn,
+                      BlocBuilder<ProductsCubit, ProductsState>(
+                        builder: (context, state) {
+                          final productsCubit = ProductsCubit.get(context);
+                          final categories = productsCubit.allCategories
+                              .where((e) =>
+                                  e.sectionId == cubit.currentSectionId)
+                              .toList();
+
+                          return Column(
+                            children: [
+                              Center(
+                                child: DropdownButton(
+                                  items: List.generate(
+                                      productsCubit.sections.length,
+                                      (index) => DropdownMenuItem(
+                                            value: index,
+                                            child: TextBody14(
+                                              productsCubit
+                                                      .sections[index].name ??
+                                                  '',
+                                              color: AppColors.black,
+                                            ),
+                                          )),
+                                  onChanged: (value) {
+                                    cubit.changeSection(value!, context);
+                                    cubit.changeCategory(
+                                        -1, cubit.currentSectionId, context);
+                                  },
+                                  hint: Container(
+                                    height: 28.h,
+                                    width: 128.w,
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8.w),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          HexColor('#31D3C6'),
+                                          HexColor('#208B78'),
+                                        ],
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        TextBody14(
+                                          productsCubit
+                                                  .sections[
+                                                      cubit.currentSectionIndex]
+                                                  .name ??
+                                              '',
+                                          color: AppColors.white,
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        SvgPicture.asset(
+                                          AppAssets.arrowDown,
+                                          height: 10.h,
+                                          width: 10.w,
+                                          colorFilter: ColorFilter.mode(
+                                            AppColors.white,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          iconSize: 0,
-                          onChanged: (value) {
-                            // Handle value change
-                            debugPrint("Selected value: $value");
-                          },
-                          dropdownColor: Colors.white,
-                          underline: SizedBox.shrink(),
-                          borderRadius: BorderRadius.circular(8.r),
-                          //isExpanded: true,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      SingleChildScrollView(
-                        clipBehavior: Clip.none,
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          spacing: 4.w,
-                          children: List.generate(
-                            6,
-                            (index) => Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12.w, vertical: 8.sp),
-                              decoration: BoxDecoration(
-                                gradient: index == 0
-                                    ? LinearGradient(colors: [
-                                        HexColor('#49F2D5'),
-                                        HexColor('#09AC90'),
-                                      ])
-                                    : null,
-                                borderRadius: BorderRadius.circular(16.r),
-                                border: Border.all(
-                                  color: AppColors.primaryColor,
-                                  width: 1,
+                                  iconSize: 0,
+
+                                  dropdownColor: Colors.white,
+                                  underline: const SizedBox.shrink(),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  //isExpanded: true,
                                 ),
                               ),
-                              child: Center(
-                                child: TextBody12(
-                                  index == 0 ? 'جميع المنتجات' : 'قميص',
-                                  color: index == 0
-                                      ? AppColors.white
-                                      : AppColors.black,
+                              SizedBox(height: 8.h),
+                              SingleChildScrollView(
+                                clipBehavior: Clip.none,
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    InkWell(
+                                      borderRadius: BorderRadius.circular(16.r),
+                                      onTap: () {
+                                        cubit.changeCategory(-1,
+                                            cubit.currentSectionId, context);
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12.w, vertical: 8.sp),
+                                        decoration: BoxDecoration(
+                                          gradient:
+                                              cubit.currentCategoryIndex == -1
+                                                  ? LinearGradient(colors: [
+                                                      HexColor('#49F2D5'),
+                                                      HexColor('#09AC90'),
+                                                    ])
+                                                  : null,
+                                          borderRadius:
+                                              BorderRadius.circular(16.r),
+                                          border: Border.all(
+                                            color: AppColors.primaryColor,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: TextBody12(
+                                            'جميع المنتجات',
+                                            color:
+                                                cubit.currentCategoryIndex == -1
+                                                    ? AppColors.white
+                                                    : AppColors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Row(
+                                      spacing: 4.w,
+                                      children: List.generate(
+                                          categories.length,
+                                          (index) => InkWell(
+                                                borderRadius:
+                                                    BorderRadius.circular(16.r),
+                                                onTap: () {
+                                                  cubit.changeCategory(
+                                                      index,
+                                                      cubit.currentSectionId,
+                                                      context);
+                                                  debugPrint(
+                                                      'category id: ${cubit.currentCategoryId}');
+                                                },
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 12.w,
+                                                      vertical: 8.sp),
+                                                  decoration: BoxDecoration(
+                                                    gradient: index ==
+                                                            cubit
+                                                                .currentCategoryIndex
+                                                        ? LinearGradient(
+                                                            colors: [
+                                                                HexColor(
+                                                                    '#49F2D5'),
+                                                                HexColor(
+                                                                    '#09AC90'),
+                                                              ])
+                                                        : null,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.r),
+                                                    border: Border.all(
+                                                      color: AppColors
+                                                          .primaryColor,
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: TextBody12(
+                                                      categories[index].name ??
+                                                          '',
+                                                      color: index ==
+                                                              cubit
+                                                                  .currentCategoryIndex
+                                                          ? AppColors.white
+                                                          : AppColors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
+                              SizedBox(height: 16.h),
+                              BlocBuilder<ProductsCubit, ProductsState>(
+                                buildWhen: (previous, current) =>
+                                    current is ChangeCategoryState,
+                                builder: (context, state) {
+                                  final brandCubit = BrandCubit.get(context);
+                                  final productsCubit =
+                                      ProductsCubit.get(context);
+
+                                  final products = productsCubit.everyProducts
+                                      .where((e) =>
+                                          (brandCubit.currentCategoryIndex ==
+                                                  -1 ||
+                                              e
+                                                      .categoryId ==
+                                                  brandCubit
+                                                      .currentCategoryId) &&
+                                          e
+                                                  .sectionId ==
+                                              productsCubit
+                                                  .sections[brandCubit
+                                                      .currentSectionIndex]
+                                                  .id &&
+                                          (productsCubit.selectedIndexSeason ==
+                                                  -1 ||
+                                              e.seasonId ==
+                                                  productsCubit
+                                                      .selectedIndexSeason) &&
+                                          e.brandId ==
+                                              brandCubit
+                                                  .brandsList[
+                                                      brandCubit.currentIndex]
+                                                  .id)
+                                      .toList();
+                                  if (products.isEmpty) {
+                                    return Center(
+                                      child: TextTitle(
+                                        'لا يوجد منتجات',
+                                        color: AppColors.black,
+                                      ),
+                                    );
+                                  } else {
+                                    return Wrap(
+                                      alignment: WrapAlignment.center,
+                                      spacing: 16.w,
+                                      runSpacing: 16.h,
+                                      children: List.generate(
+                                        products.length,
+                                        (index) => ProductCard(
+                                          product: products[index],
+                                          productId: products[index].id ?? 0,
+                                          title: products[index].name ?? '',
+                                          image: products[index]
+                                                  .colors
+                                                  ?.first
+                                                  .images
+                                                  ?.first
+                                                  .url ??
+                                              'http://minscp.com/ecom/backend/public/storage/801/0U4A5271.jpg',
+                                          fromHome: false,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                              )
+                            ],
+                          );
+                        },
                       ),
-                      SizedBox(height: 16.h),
-                      Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 16.w,
-                          runSpacing: 16.h,
-                          children: List.generate(
-                            50,
-                            (index) => ProductCard(
-                                productId: index,
-                                hasDiscount: false,
-                                title: 'قميص كاروهات',
-                                image:
-                                    'http://minscp.com/ecom/backend/public/storage/801/0U4A5271.jpg',
-                                fromHome: true),
-                          ))
                     ]);
               },
             ),
           ),
-          CustomAppBar(
+          const CustomAppBar(
             title: 'علاماتنا التجارية',
             isOffers: false,
             hasSeasonsDropDown: true,
@@ -329,9 +450,8 @@ class BrandsScreen extends StatelessWidget {
                   decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.15),
-                      spreadRadius: 0,
                       blurRadius: 8,
-                      offset: Offset(0, 1),
+                      offset: const Offset(0, 1),
                     ),
                   ]),
                   child: SvgPicture.asset(

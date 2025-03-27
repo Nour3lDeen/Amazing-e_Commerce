@@ -40,10 +40,8 @@ class RefundPolicy extends StatelessWidget {
               fit: BoxFit.cover,
             )),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
@@ -121,8 +119,6 @@ class RefundPolicy extends StatelessWidget {
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     TextTitle(
                       'فقط ولأول مرة مع',
@@ -161,7 +157,7 @@ class RefundPolicy extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTap: (){
-                            Navigation.push(context,BalanceRefundScreen());
+                            Navigation.push(context,const BalanceRefundScreen());
                           },
                           child: Container(
                             height: 40.h,
@@ -197,7 +193,7 @@ class RefundPolicy extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: (){
-                            Navigation.push(context,ProductRefundScreen());
+                            Navigation.push(context,const ProductRefundScreen());
                           },
                           child: Container(
                             height: 40.h,

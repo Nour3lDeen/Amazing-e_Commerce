@@ -6,6 +6,10 @@ class ProductsInitial extends ProductsState {}
 
 class ChangeSeasonState extends ProductsState {}
 
+class ChangeSelectedSectionState extends ProductsState {}
+
+class ChangeOfferState extends ProductsState {}
+
 class ChangeFavoriteState extends ProductsState {
   final int productId;
   final bool isFavorite;
@@ -43,6 +47,18 @@ final class ChangeNumberState extends ProductsState {
   ChangeNumberState(this.number);
 }
 
+final class ChangeRefundTypeState extends ProductsState {}
+
+final class SendRateLoadingState extends ProductsState {}
+
+final class SendRateSuccessState extends ProductsState {}
+
+final class SendRateErrorState extends ProductsState {
+  String msg;
+
+  SendRateErrorState(this.msg);
+}
+
 final class SectionLoadingState extends ProductsState {}
 
 final class SectionSuccessState extends ProductsState {}
@@ -63,6 +79,16 @@ final class SectionsErrorState extends ProductsState {
   SectionsErrorState(this.msg);
 }
 
+final class CategoriesLoadingState extends ProductsState {}
+
+final class CategoriesSuccessState extends ProductsState {}
+
+final class CategoriesErrorState extends ProductsState {
+  String msg;
+
+  CategoriesErrorState(this.msg);
+}
+
 final class ProductsLoadingState extends ProductsState {}
 
 final class ProductsSuccessState extends ProductsState {}
@@ -71,6 +97,26 @@ final class ProductsErrorState extends ProductsState {
   String msg;
 
   ProductsErrorState(this.msg);
+}
+
+final class GetProductsLoadingState extends ProductsState {}
+
+final class GetProductsSuccessState extends ProductsState {}
+
+final class GetProductsErrorState extends ProductsState {
+  String msg;
+
+  GetProductsErrorState(this.msg);
+}
+
+final class GetSeasonsLoadingState extends ProductsState {}
+
+final class GetSeasonsSuccessState extends ProductsState {}
+
+final class GetSeasonsErrorState extends ProductsState {
+  String msg;
+
+  GetSeasonsErrorState(this.msg);
 }
 
 final class ProductLoadingState extends ProductsState {}
@@ -92,8 +138,10 @@ final class ChangeSelectedImageState extends ProductsState {
 final class ProductsUpdatedState extends ProductsState {}
 
 final class ProductsSearchQueryUpdatedState extends ProductsState {}
+
 final class StackUpdatedState extends ProductsState {
   final List<String> stack;
+
   StackUpdatedState(this.stack);
 }
 
@@ -131,3 +179,21 @@ final class AddCartItemErrorState extends ProductsState {
 }
 
 final class ChangeButtonState extends ProductsState {}
+
+final class GetFavoritesLoadingState extends ProductsState {}
+
+final class GetFavoritesSuccessState extends ProductsState {}
+
+final class GetFavoritesErrorState extends ProductsState {
+  final String msg;
+
+  GetFavoritesErrorState(this.msg);
+}
+
+final class ToggleFavoriteLoadingState extends ProductsState {}
+
+final class ToggleFavoriteErrorState extends ProductsState {
+  final String msg;
+
+  ToggleFavoriteErrorState(this.msg);
+}

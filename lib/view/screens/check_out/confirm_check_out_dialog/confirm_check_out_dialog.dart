@@ -34,7 +34,6 @@ class ConfirmCheckOutDialog extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
            children: [
              SvgPicture.asset(AppAssets.confirmCheckOut),
              TextTitle('تم تأكيد طلبك بنجاح',color: AppColors.primaryColor,),

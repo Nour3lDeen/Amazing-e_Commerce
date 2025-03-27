@@ -39,8 +39,6 @@ class Navigation {
         },
         transitionDuration: const Duration(milliseconds: 500),
         reverseTransitionDuration: const Duration(milliseconds: 500),
-        maintainState: true,
-        fullscreenDialog: false,
       );
     } else {
       return PageRouteBuilder(

@@ -16,6 +16,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../../view_model/utils/app_assets/app_assets.dart';
 import '../../../../view_model/utils/app_colors/app_colors.dart';
+import '../../common_components/not_logged_component/not_logged_component.dart';
 import 'components/check_box_component.dart';
 import 'components/custom_header.dart';
 import 'components/example_card.dart';
@@ -138,7 +139,6 @@ class StartDesignScreen extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 54.w),
             child: Row(
                 spacing: 8.w,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Expanded(
@@ -365,9 +365,17 @@ class StartDesignScreen extends StatelessWidget {
                               if (StartDesignCubit.get(context)
                                   .examples
                                   .isEmpty) {
-                                return const Center(
-                                  child: TextTitle('لا يوجد شعارات'),
-                                );
+                                return ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    children: [
+                                      ExampleCard(
+                                        price: 40,
+                                        type: 'images',
+                                        checkId: 100,
+                                        image: AppAssets.uploadImage,
+                                        currentStep: 1,
+                                      ),
+                                    ]);
                               }
                               return ListView.separated(
                                 scrollDirection: Axis.horizontal,
@@ -391,7 +399,7 @@ class StartDesignScreen extends StatelessWidget {
                                     );
                                   } else {
                                     return ExampleCard(
-                                      price: '40',
+                                      price: 40,
                                       type: 'images',
                                       checkId: 100,
                                       image: AppAssets.uploadImage,
@@ -726,9 +734,6 @@ class StartDesignScreen extends StatelessWidget {
                                 child: Wrap(
                                     spacing: 16.w,
                                     runSpacing: 4.h,
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.start,
-                                    alignment: WrapAlignment.start,
                                     children: List.generate(
                                         cubit.sizesAndDirections.length,
                                         (index) {
@@ -1060,7 +1065,6 @@ class StartDesignScreen extends StatelessWidget {
                                 // Increase spacing for better symmetry
                                 runSpacing: 4.h,
                                 alignment: WrapAlignment.spaceBetween,
-                                crossAxisAlignment: WrapCrossAlignment.start,
                                 children: List.generate(
                                   cubit.materials.length,
                                   (index) {
@@ -1201,7 +1205,6 @@ class StartDesignScreen extends StatelessWidget {
                             spacing: 16.w,
                             runSpacing: 8.h,
                             alignment: WrapAlignment.spaceBetween,
-                            crossAxisAlignment: WrapCrossAlignment.start,
                             children: List.generate(
                               cubit.models.length,
                               (index) {
@@ -1461,7 +1464,7 @@ class StartDesignScreen extends StatelessWidget {
                                   title: cubit.sizes[index].sizeCode!,
                                   printId: cubit.sizes[index].id!,
                                   currentStep: 7,
-                                  price: cubit.sizes[index].discountRate! == '0'
+                                  price: cubit.sizes[index].discountPrice! == 0
                                       ? cubit.sizes[index].basicPrice!
                                       : cubit.sizes[index].discountPrice!,
                                 );
@@ -1632,6 +1635,8 @@ class StartDesignScreen extends StatelessWidget {
             },
           ),
           BlocBuilder<StartDesignCubit, StartDesignState>(
+            buildWhen: (previous, current) =>
+                current is! AddCartItemLoadingState,
             builder: (context, state) {
               final cubit = StartDesignCubit.get(context);
               return Visibility(
@@ -1640,7 +1645,6 @@ class StartDesignScreen extends StatelessWidget {
                   spacing: 12.h,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
@@ -1987,8 +1991,6 @@ class StartDesignScreen extends StatelessWidget {
                                       height: 4.h,
                                     ),
                                     Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
                                       children: [
                                         SvgPicture.asset(
                                           AppAssets.right,
@@ -2085,164 +2087,199 @@ class StartDesignScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 12.w,
-                        children: [
-                          CustomButton(
-                            borderRadius: 10.r,
-                            onPressed: () {
-                              StartDesignCubit.get(context).changeStep(7);
-                              StartDesignCubit.get(context)
-                                  .scrollToPosition(1030.h);
-                            },
-                            child: Container(
-                              width: 100.w,
-                              height: 34.h,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                border:
-                                    Border.all(color: AppColors.primaryColor),
-                                borderRadius: BorderRadius.circular(10.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.grey,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                    BlocConsumer<StartDesignCubit, StartDesignState>(
+                      listener: (context, state) {
+                        if (state is AddCartItemSuccessState) {
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) => Dialog(
+                              backgroundColor:
+                                  AppColors.white.withValues(alpha: 0.65),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.r),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                spacing: 8.w,
-                                children: [
-                                  TextTitle(
-                                    'تعديل',
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Transform.rotate(
-                                      angle: 3.141592653589793 / 360 * 180,
-                                      child: SvgPicture.asset(
-                                        AppAssets.scissors2,
-                                        colorFilter: ColorFilter.mode(
-                                          AppColors.primaryColor,
-                                          BlendMode.srcIn,
-                                        ),
-                                      ))
-                                ],
-                              ),
-                            ),
-                          ),
-                          CustomButton(
-                            borderRadius: 10.r,
-                            onPressed: () {
-                              showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (context) => Dialog(
-                                  backgroundColor:
-                                      AppColors.white.withValues(alpha: 0.65),
-                                  shape: RoundedRectangleBorder(
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 4.0,
+                                  sigmaY: 4.0,
+                                ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 50.h, horizontal: 40.w),
+                                  //EdgeInsets.all(50.sp),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColors.white,
+                                      width: 2.w,
+                                    ),
                                     borderRadius: BorderRadius.circular(20.r),
                                   ),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                      sigmaX: 4.0,
-                                      sigmaY: 4.0,
-                                    ),
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 50.h, horizontal: 40.w),
-                                      //EdgeInsets.all(50.sp),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColors.white,
-                                          width: 2.w,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SvgPicture.asset(
+                                        AppAssets.confirm,
+                                        height: 80.h,
+                                        width: 80.w,
+                                        colorFilter: const ColorFilter.mode(
+                                            Colors.green, BlendMode.srcIn),
+                                      ),
+                                      SizedBox(height: 24.h),
+                                      TextTitle(
+                                        'تم إضافة طلبك إلى العربة بنجاح',
+                                        fontSize: 18.sp,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                          Future.delayed(const Duration(seconds: 2))
+                              .then((value) {
+                            StartDesignCubit.get(context).changeStep(1);
+                            StartDesignCubit.get(context).openMenu(1);
+                            StartDesignCubit.get(context).scrollToTop();
+                            StartDesignCubit.get(context).clear();
+                            Navigator.pop(context);
+                          });
+                        }
+                        if (state is AddCartItemErrorState) {
+                          StartDesignCubit.get(context)
+                              .viewToast(state.error, context, AppColors.red);
+                        }
+                      },
+                      builder: (context, state) {
+                        final cubit = StartDesignCubit.get(context);
+                        if (state is AddCartItemLoadingState) {
+                          return Center(
+                            child: LoadingAnimationWidget.inkDrop(
+                                color: AppColors.primaryColor, size: 20.sp),
+                          );
+                        } else {
+                          return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              spacing: 12.w,
+                              children: [
+                                CustomButton(
+                                  borderRadius: 10.r,
+                                  onPressed: () {
+                                    StartDesignCubit.get(context).changeStep(7);
+                                    StartDesignCubit.get(context)
+                                        .scrollToPosition(1030.h);
+                                  },
+                                  child: Container(
+                                    width: 100.w,
+                                    height: 34.h,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.white,
+                                      border: Border.all(
+                                          color: AppColors.primaryColor),
+                                      borderRadius: BorderRadius.circular(10.r),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.grey,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 4),
                                         ),
-                                        borderRadius:
-                                            BorderRadius.circular(20.r),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          SvgPicture.asset(
-                                            AppAssets.confirm,
-                                            height: 80.h,
-                                            width: 80.w,
-                                            colorFilter: const ColorFilter.mode(
-                                                Colors.green, BlendMode.srcIn),
-                                          ),
-                                          SizedBox(height: 24.h),
-                                          TextTitle(
-                                            'تم إضافة طلبك إلى العربة بنجاح',
-                                            fontSize: 18.sp,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      spacing: 8.w,
+                                      children: [
+                                        TextTitle(
+                                          'تعديل',
+                                          color: AppColors.primaryColor,
+                                        ),
+                                        Transform.rotate(
+                                            angle:
+                                                3.141592653589793 / 360 * 180,
+                                            child: SvgPicture.asset(
+                                              AppAssets.scissors2,
+                                              colorFilter: ColorFilter.mode(
+                                                AppColors.primaryColor,
+                                                BlendMode.srcIn,
+                                              ),
+                                            ))
+                                      ],
                                     ),
                                   ),
                                 ),
-                              );
-                              Future.delayed(const Duration(seconds: 2))
-                                  .then((value) {
-                                StartDesignCubit.get(context).changeStep(1);
-                                StartDesignCubit.get(context).openMenu(1);
-                                StartDesignCubit.get(context).scrollToTop();
-                                StartDesignCubit.get(context).clear();
-                                Navigator.pop(context);
-                              });
-                            },
-                            child: Container(
-                              width: 100.w,
-                              height: 34.h,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
-                                gradient: LinearGradient(colors: [
-                                  HexColor('#31D3C6'),
-                                  HexColor('#208B78'),
-                                ]),
-                                borderRadius: BorderRadius.circular(10.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.grey,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 4),
+                                CustomButton(
+                                  borderRadius: 10.r,
+                                  onPressed: () {
+                                    if (SharedHelper.getData(
+                                            SharedKeys.token) !=
+                                        null) {
+                                      cubit.addCartItem();
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) {
+                                          return const NotLoggedComponent();
+                                        },
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 100.w,
+                                    height: 34.h,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      gradient: LinearGradient(colors: [
+                                        HexColor('#31D3C6'),
+                                        HexColor('#208B78'),
+                                      ]),
+                                      borderRadius: BorderRadius.circular(10.r),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.grey,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      spacing: 8.w,
+                                      children: [
+                                        TextTitle(
+                                          'تأكيد',
+                                          color: AppColors.white,
+                                        ),
+                                        SvgPicture.asset(
+                                          AppAssets.right,
+                                          height: 16.h,
+                                          colorFilter: ColorFilter.mode(
+                                              AppColors.white, BlendMode.srcIn),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                spacing: 8.w,
-                                children: [
-                                  TextTitle(
-                                    'تأكيد',
-                                    color: AppColors.white,
-                                  ),
-                                  SvgPicture.asset(
-                                    AppAssets.right,
-                                    height: 16.h,
-                                    colorFilter: ColorFilter.mode(
-                                        AppColors.white, BlendMode.srcIn),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ]),
+                                ),
+                              ]);
+                        }
+                      },
+                    ),
                   ],
                 ),
               );
             },
           ),
-          SizedBox(height: SharedHelper.getData(SharedKeys.platform) == 'ios'? 50.h:65.h),
+          SizedBox(
+              height: SharedHelper.getData(SharedKeys.platform) == 'ios'
+                  ? 50.h
+                  : 65.h),
         ],
       ),
     );
@@ -2360,7 +2397,7 @@ Widget _buildMenuContainer(bool isModel, int menuId, BuildContext context) {
                                     );
                                   } else {
                                     return ExampleCard(
-                                      price: '40',
+                                      price: 40,
                                       type: 'images',
                                       checkId: 100,
                                       image: AppAssets.uploadImage,
@@ -2395,13 +2432,11 @@ Widget _buildMenuContainer(bool isModel, int menuId, BuildContext context) {
                                 : null,
           )
         : TextFormField(
-            autofocus: false,
             textInputAction: TextInputAction.done,
             onTapOutside: (event) {
               FocusScope.of(context).unfocus();
             },
             cursorColor: AppColors.primaryColor,
-            readOnly: false,
             keyboardType: TextInputType.number,
             onTap: () {
               StartDesignCubit.get(context).examplesChecked.clear();

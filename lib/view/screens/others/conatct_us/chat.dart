@@ -64,7 +64,6 @@ width: 2.sp
                             Container(
                               height: 38.h,
                               width: 38.w,
-                              clipBehavior: Clip.none,
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
@@ -92,7 +91,7 @@ width: 2.sp
                               ),
                               fontSize: 16.sp,
                             ),
-                            Spacer(),
+                            const Spacer(),
                             GestureDetector(
                               onTap: () {
                                 Navigator.pop(context);
@@ -149,13 +148,11 @@ width: 2.sp
                             children: [
                               Expanded(
                                 child: ListView(
-                                  physics: ClampingScrollPhysics(),
+                                  physics: const ClampingScrollPhysics(),
                                   reverse: true,
                                   padding: EdgeInsets.only(bottom: 20.h),
                                   children: [
                                     Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
@@ -290,7 +287,6 @@ width: 2.sp
                                         color: AppColors.white,
                                       ),
                                       child: TextFormField(
-                                        autofocus: false,
                                         maxLines: 3,
                                         minLines: 2,
                                         textInputAction: TextInputAction.send,
@@ -334,7 +330,7 @@ width: 2.sp
                                               borderSide: BorderSide.none),
                                         ),
                                       )),
-                                  Spacer(),
+                                  const Spacer(),
                                   Container(
                                     width: 28.w,
                                     height: 28.h,

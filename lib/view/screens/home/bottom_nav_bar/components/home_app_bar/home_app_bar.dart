@@ -14,6 +14,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../../../../../../view_model/utils/Texts/Texts.dart';
 import '../../../../../../view_model/utils/app_colors/app_colors.dart';
+import '../../../../../common_components/not_logged_component/not_logged_component.dart';
 import '../../../../auth/login_screen/login_screen.dart';
 import '../../../../others/notifications_screen/notifications_screen.dart';
 
@@ -28,13 +29,11 @@ class HomeAppBar extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
         child: AppBar(
-          primary: true,
           centerTitle: false,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           backgroundColor: HexColor('#DCDCDC').withValues(alpha: 0.7),
           automaticallyImplyLeading: false,
           scrolledUnderElevation: 0,
-          bottomOpacity: 1.0,
           elevation: 0.h,
           leadingWidth: 130.w,
           toolbarHeight: 60.h,
@@ -43,7 +42,16 @@ class HomeAppBar extends StatelessWidget {
               padding: EdgeInsets.only(left: 16.w),
               child: InkWell(
                 onTap: () {
-                  Navigation.push(context, const NotificationsScreen());
+                  if (SharedHelper.getData(SharedKeys.token) == null) {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) {
+                        return const NotLoggedComponent();
+                      },
+                    );
+                  }else{
+                        Navigation.push(context, const NotificationsScreen());
+                      }
                 },
                 borderRadius: BorderRadius.circular(25.r),
                 child: CircleAvatar(
@@ -61,7 +69,6 @@ class HomeAppBar extends StatelessWidget {
             padding: EdgeInsets.only(right: 16.w),
             child: Row(
               spacing: 6.w,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 InkWell(
                   borderRadius: BorderRadius.circular(16.r),
@@ -85,7 +92,7 @@ class HomeAppBar extends StatelessWidget {
                               ),
                             );
                           });*/
-                      Navigation.push(context, ProfileScreen());
+                      Navigation.push(context, const ProfileScreen());
                     }
                   },
                   child: Hero(

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../view_model/data/local/shared_helper.dart';
 import '../../../../view_model/data/local/shared_keys.dart';
@@ -67,20 +68,23 @@ class MainCategoriesScreen extends StatelessWidget {
                             description: cubit.sections[index].description!,
                             onTap: () {
                               cubit.categories.clear();
-                              cubit.products.clear();
+                              cubit.allSectionProducts.clear();
                               Navigation.push(
                                 context,
                                 CategoryDetailsScreen(
                                   title: cubit.sections[index].name!,
+                                  section: cubit.sections[index],
                                 ),
                               );
+                              //cubit.getAllProducts();
                               cubit.showSection(cubit.sections[index].id!);
+                              debugPrint('categories: ${cubit.categories}');
                               debugPrint(
                                   'Selected Category ID: ${cubit.sections[index].id}');
                               if (cubit.categories.isNotEmpty) {
-                                cubit.selectedIndex = cubit.categories[0].id!;
-                                cubit.getCategoryProduct(
-                                    cubit.categories[0].id!);
+                                cubit.selectedIndex = cubit.sections[index].categories![0].id!;
+                               /* cubit.getCategoryProduct(
+                                    cubit.categories[0].id!);*/
                               }
                             },
                           );
@@ -92,11 +96,61 @@ class MainCategoriesScreen extends StatelessWidget {
                 ),
               ),
 
-              // Loading Indicator Overlay
+
               if (state is SectionsLoadingState)
-                Center(
-                    child: LoadingAnimationWidget.inkDrop(
-                        color: AppColors.primaryColor, size: 30.sp))
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: SharedHelper.getData(SharedKeys.platform) == 'ios'
+                          ? 0.h
+                          : 16.h),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: Image.asset(AppAssets.back).image,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: ListView(
+                    physics: const ClampingScrollPhysics(),
+                    children: [
+                      Center(
+                        child: TextTitle(
+                          'أقسام Amazing',
+                          color: AppColors.primaryColor,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Skeletonizer(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: 3,
+                          separatorBuilder: (context, index) => SizedBox(
+                            height: 16.h,
+                          ),
+                          itemBuilder: (context, index) {
+                            return MainCategoryComponent(
+                              image: 'http://minscp.com/ecom/backend/public/storage/801/0U4A5271.jpg',
+                              index: index,
+                              title: 'رجالي',
+                              description: 'رجالي',
+                              onTap: () {
+                        
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(height:SharedHelper.getData(SharedKeys.platform) == 'ios'
+                          ? 48.h:60.h),
+                    ],
+                  ),
+                ),
+
+
             ],
           );
         },

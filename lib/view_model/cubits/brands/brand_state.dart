@@ -1,61 +1,29 @@
 part of 'brand_cubit.dart';
 
 abstract class BrandState {
-  final int currentIndex;
-  final bool isAppBarVisible;
-  final bool isAtTop;
+  const BrandState();
+}
 
-  const BrandState({
-    required this.currentIndex,
-    required this.isAppBarVisible,
-    required this.isAtTop,
-  });
+class BrandInitial extends BrandState {}
 
-  BrandState copyWith({
-    int? currentIndex,
-    bool? isAppBarVisible,
-    bool? isAtTop,
+class BrandUpdated extends BrandState {}
+
+class GetBrandsLoadingState extends BrandState {}
+
+class GetBrandsSuccessState extends BrandState {}
+
+class GetBrandsFailureState extends BrandState {
+  final String msg;
+
+  const GetBrandsFailureState({
+    required this.msg,
   });
 }
 
-class BrandInitial extends BrandState {
-  const BrandInitial({
-    required super.currentIndex,
-    required super.isAppBarVisible,
-    required super.isAtTop,
-  });
+class ChangeSectionState extends BrandState {}
 
-  @override
-  BrandState copyWith({
-    int? currentIndex,
-    bool? isAppBarVisible,
-    bool? isAtTop,
-  }) {
-    return BrandInitial(
-      currentIndex: currentIndex ?? this.currentIndex,
-      isAppBarVisible: isAppBarVisible ?? this.isAppBarVisible,
-      isAtTop: isAtTop ?? this.isAtTop,
-    );
-  }
-}
+class ChangeCategoryState extends BrandState {
+  final int index;
 
-class BrandUpdated extends BrandState {
-  const BrandUpdated({
-    required super.currentIndex,
-    required super.isAppBarVisible,
-    required super.isAtTop,
-  });
-
-  @override
-  BrandState copyWith({
-    int? currentIndex,
-    bool? isAppBarVisible,
-    bool? isAtTop,
-  }) {
-    return BrandUpdated(
-      currentIndex: currentIndex ?? this.currentIndex,
-      isAppBarVisible: isAppBarVisible ?? this.isAppBarVisible,
-      isAtTop: isAtTop ?? this.isAtTop,
-    );
-  }
+  ChangeCategoryState({required this.index});
 }

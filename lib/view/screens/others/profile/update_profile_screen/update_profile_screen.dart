@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class UpdateProfileScreen extends StatelessWidget {
   const UpdateProfileScreen({super.key});
@@ -23,8 +24,7 @@ class UpdateProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
-        // final authCubit = AuthCubit.get(context);
-        bool isLoggedIn = SharedHelper.getData(SharedKeys.token) != null;
+        final authCubit = AuthCubit.get(context);
         return Scaffold(
             body: Stack(
           children: [
@@ -47,14 +47,14 @@ class UpdateProfileScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                 )),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
                           onTap: () {
+                            authCubit.clearData();
+                            debugPrint('selectedImage: ${authCubit.selectedImage}');
                             Navigator.pop(context);
                           },
                           child: Container(
@@ -74,7 +74,6 @@ class UpdateProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         SizedBox(
                           width: 78.w,
                         ),
@@ -88,74 +87,106 @@ class UpdateProfileScreen extends StatelessWidget {
                           ),
                           fontSize: 18.sp,
                         ),
-
                       ],
                     ),
                     Hero(
                       tag: 'avatar',
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.secondaryColor,
-                            width: 2.w,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              offset: Offset(0.0, 3.h),
-                              blurRadius: 6.0,
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(12.r)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    child: authCubit.selectedImage == null
+                                        ? CachedNetworkImage(
+                                            imageUrl: SharedHelper.getData(
+                                                    SharedKeys.avatar)
+                                                .replaceFirst(
+                                                    'http://', 'https://'),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.file(
+                                            authCubit.selectedImage!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                  ),
+                                );
+                              });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.secondaryColor,
+                              width: 2.w,
                             ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          radius: 35.r,
-                          child: isLoggedIn
-                              ? ClipOval(
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        SharedHelper.getData(SharedKeys.avatar)
-                                            .replaceFirst(
-                                                'http://', 'https://'),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                offset: Offset(0.0, 3.h),
+                                blurRadius: 6.0,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            radius: 35.r,
+                            child: authCubit.selectedImage == null
+                                ? ClipOval(
+                                    child: CachedNetworkImage(
+                                      imageUrl: SharedHelper.getData(
+                                              SharedKeys.avatar)
+                                          .replaceFirst('http://', 'https://'),
+                                      height: 70.h,
+                                      width: 70.w,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : ClipOval(
+                                    child: Image.file(
+                                    authCubit.selectedImage!,
                                     height: 70.h,
                                     width: 70.w,
                                     fit: BoxFit.cover,
-                                  ),
-                                )
-                              : ClipOval(
-                                  child: Image.asset(
-                                  AppAssets.avatar,
-                                  height: 70.h,
-                                  width: 70.w,
-                                  fit: BoxFit.cover,
-                                )),
+                                  )),
+                          ),
                         ),
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 4.w,
-                      children: [
-                        TextBody14(
-                          'تغيير الصورة',
-                          color: AppColors.black,
-                          shadows: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              offset: Offset(0.0, 3.h),
-                              blurRadius: 6.0,
-                            ),
-                          ],
-                        ),
-                        SvgPicture.asset(
-                          AppAssets.image,
-                          height: 14.h,
-                          width: 14.w,
-                          colorFilter: ColorFilter.mode(
-                              AppColors.black, BlendMode.srcIn),
-                        )
-                      ],
+                    GestureDetector(
+                      onTap: () {
+                        authCubit.pickImage();
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 4.w,
+                        children: [
+                          TextBody14(
+                            'تغيير الصورة',
+                            color: AppColors.black,
+                            shadows: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                offset: Offset(0.0, 3.h),
+                                blurRadius: 6.0,
+                              ),
+                            ],
+                          ),
+                          SvgPicture.asset(
+                            AppAssets.image,
+                            height: 14.h,
+                            width: 14.w,
+                            colorFilter: ColorFilter.mode(
+                                AppColors.black, BlendMode.srcIn),
+                          )
+                        ],
+                      ),
                     )
                   ],
                 ),
@@ -190,356 +221,379 @@ class UpdateProfileScreen extends StatelessWidget {
                         ).image,
                       ),
                     ),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 12.h,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: CustomTextFormField(
-                                  title: LocaleKeys.firstName.tr(),
-                                  hint: SharedHelper.getData(SharedKeys.firstName),
-                                  icon: AppAssets.profile,
-                                  titleColor: AppColors.black,
-                                  isPassword: false,
-                                  borderRadius: 14.r,
-                                  fillColor: HexColor('#DADADA'),
-                                  hintColor:AppColors.black,
-                                  controller: AuthCubit.get(context)
-                                      .registerFirstNameController,
-                                  onIconTap: () {},
-                                  suffixIcon: const Icon(Icons.email),
-                                  obscureText: false,
-                                  validator: (value) {
-                                    if ((value ?? '').trim().isEmpty) {
-                                      return LocaleKeys.firstNameError.tr();
-                                    }
-                                    return null;
-                                  },
-                                  textInputAction: TextInputAction.next,
-                                  keyboardType: TextInputType.name,
+                    child: Form(
+                      key: authCubit.updateFormKey,
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 12.h,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextFormField(
+                                    title: LocaleKeys.firstName.tr(),
+                                    hint: LocaleKeys.firstName.tr(),
+                                    icon: AppAssets.profile,
+                                    titleColor: AppColors.black,
+                                    isPassword: false,
+                                    borderRadius: 14.r,
+                                    fillColor: HexColor('#DADADA'),
+                                    hintColor: AppColors.black,
+                                    controller:
+                                        authCubit.updateFirstNameController,
+                                    onIconTap: () {},
+                                    suffixIcon: const Icon(Icons.email),
+                                    obscureText: false,
+                                    validator: (value) {
+                                      if ((value ?? '').trim().isEmpty) {
+                                        return LocaleKeys.firstNameError.tr();
+                                      }
+                                      return null;
+                                    },
+                                    textInputAction: TextInputAction.next,
+                                    keyboardType: TextInputType.name,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 16.w),
-                              Expanded(
-                                child: CustomTextFormField(
-                                  title: LocaleKeys.lastName.tr(),
-                                  hint: SharedHelper.getData(SharedKeys.secondName),
-                                  icon: AppAssets.family,
-                                  titleColor: AppColors.black,
-                                  fillColor: HexColor('#DADADA'),
-                                  hintColor:AppColors.black,
-
-                                  borderRadius: 14.r,
-                                  isPassword: false,
-                                  controller: AuthCubit.get(context)
-                                      .registerSecondNameController,
-                                  onIconTap: () {},
-                                  suffixIcon: const Icon(Icons.email),
-                                  obscureText: false,
-                                  validator: (value) {
-                                    if ((value ?? '').trim().isEmpty) {
-                                      return LocaleKeys.lastNameError.tr();
-                                    }
-                                    return null;
-                                  },
-                                  textInputAction: TextInputAction.next,
-                                  keyboardType: TextInputType.name,
+                                SizedBox(width: 16.w),
+                                Expanded(
+                                  child: CustomTextFormField(
+                                    title: LocaleKeys.lastName.tr(),
+                                    hint: LocaleKeys.lastName.tr(),
+                                    icon: AppAssets.family,
+                                    titleColor: AppColors.black,
+                                    fillColor: HexColor('#DADADA'),
+                                    hintColor: AppColors.black,
+                                    borderRadius: 14.r,
+                                    isPassword: false,
+                                    controller:
+                                        authCubit.updateSecondNameController,
+                                    onIconTap: () {},
+                                    suffixIcon: const Icon(Icons.email),
+                                    obscureText: false,
+                                    validator: (value) {
+                                      if ((value ?? '').trim().isEmpty) {
+                                        return LocaleKeys.lastNameError.tr();
+                                      }
+                                      return null;
+                                    },
+                                    textInputAction: TextInputAction.next,
+                                    keyboardType: TextInputType.name,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          CustomTextFormField(
-                            title: LocaleKeys.email.tr(),
-                            hint: 'noor@1.com',
-                            icon: AppAssets.email,
-                            titleColor: AppColors.black,
-                            isPassword: false,
-                            hintColor:AppColors.black,
-
-                            controller:
-                                AuthCubit.get(context).registerEmailController,
-                            onIconTap: () {},
-                            fillColor: HexColor('#DADADA'),
-                            borderRadius: 14.r,
-                            suffixIcon: const Icon(Icons.email),
-                            obscureText: false,
-                            validator: (value) {
-                              if ((value ?? '').trim().isEmpty) {
-                                return LocaleKeys.emailError.tr();
-                              }
-                              return null;
-                            },
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          CustomTextFormField(
-                            title: LocaleKeys.phoneNumber.tr(),
-                            hint: '0123456123',
-                            icon: AppAssets.call,
-                            titleColor: AppColors.black,
-                            isPassword: false,
-                            hintColor:AppColors.black,
-                            controller:
-                                AuthCubit.get(context).registerNumberController,
-                            onIconTap: () {},
-                            fillColor: HexColor('#DADADA'),
-                            borderRadius: 14.r,
-                            suffixIcon: const Icon(Icons.email),
-                            obscureText: false,
-                            validator: (value) {
-                              if ((value ?? '').trim().isEmpty) {
-                                return LocaleKeys.phoneNumberError.tr();
-                              }
-                              return null;
-                            },
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.number,
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: BlocBuilder<AuthCubit, AuthState>(
-                                  builder: (context, state) {
-                                    final cubit = AuthCubit.get(context);
-                                    return CustomDropdownFormField(
-                                      title: LocaleKeys.gender.tr(),
-                                      icon: AppAssets.gender,
-                                      titleColor: AppColors.black,
-                                      hint: 'ذكر',
-                                      hintColor: AppColors.black,
-                                      items: cubit.genders,
-                                      value: cubit.selectedGender,
-                                      fillColor: HexColor('#DADADA'),
-                                      borderRadius: 14.r,
-                                      onChanged: (value) {
-                                        cubit.changeGender(value);
-                                      },
-                                      validator: (value) {
-                                        if ((value ?? '').trim().isEmpty) {
-                                          return LocaleKeys.genderError.tr();
-                                        }
-                                        return null;
-                                      },
-                                    );
-                                  },
+                              ],
+                            ),
+                            CustomTextFormField(
+                              title: LocaleKeys.email.tr(),
+                              hint: LocaleKeys.email.tr(),
+                              icon: AppAssets.email,
+                              titleColor: AppColors.black,
+                              isPassword: false,
+                              hintColor: AppColors.black,
+                              controller: authCubit.updateEmailController,
+                              onIconTap: () {},
+                              fillColor: HexColor('#DADADA'),
+                              borderRadius: 14.r,
+                              suffixIcon: const Icon(Icons.email),
+                              obscureText: false,
+                              validator: (value) {
+                                if ((value ?? '').trim().isEmpty) {
+                                  return LocaleKeys.emailError.tr();
+                                }
+                                return null;
+                              },
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            CustomTextFormField(
+                              title: LocaleKeys.phoneNumber.tr(),
+                              hint: LocaleKeys.phoneNumberHint.tr(),
+                              icon: AppAssets.call,
+                              titleColor: AppColors.black,
+                              isPassword: false,
+                              hintColor: AppColors.black,
+                              controller: authCubit.updatePhoneController,
+                              onIconTap: () {},
+                              fillColor: HexColor('#DADADA'),
+                              borderRadius: 14.r,
+                              suffixIcon: const Icon(Icons.email),
+                              obscureText: false,
+                              validator: (value) {
+                                if ((value ?? '').trim().isEmpty) {
+                                  return LocaleKeys.phoneNumberError.tr();
+                                }
+                                return null;
+                              },
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.number,
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: BlocBuilder<AuthCubit, AuthState>(
+                                    builder: (context, state) {
+                                      final cubit = AuthCubit.get(context);
+                                      return CustomDropdownFormField(
+                                        title: LocaleKeys.gender.tr(),
+                                        icon: AppAssets.gender,
+                                        titleColor: AppColors.black,
+                                        hint: cubit.selectedGender ??
+                                            'اختر الجنس',
+                                        // hintColor: AppColors.black,
+                                        items: cubit.genders,
+                                        value: cubit.selectedGender,
+                                        fillColor: HexColor('#DADADA'),
+                                        borderRadius: 14.r,
+                                        onChanged: (value) {
+                                          cubit.changeGender(value);
+                                        },
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 16.w),
-                              Expanded(
-                                child: CustomTextFormField(
-                                  readOnly: true,
-                                  // Makes the field read-only
-                                  title: LocaleKeys.birthDate.tr(),
-                                  hint: '12/12/2024',
-                                  icon: AppAssets.date,
-                                  titleColor: AppColors.black,
-                                  hintColor:AppColors.black,
+                                SizedBox(width: 16.w),
+                                Expanded(
+                                  child: CustomTextFormField(
+                                    readOnly: true,
+                                    // Makes the field read-only
+                                    title: LocaleKeys.birthDate.tr(),
+                                    hint: 'أدخل تاريخ الميلاد',
+                                    icon: AppAssets.date,
+                                    titleColor: AppColors.black,
+                                    //hintColor:AppColors.black,
 
-                                  isPassword: false,
-                                  controller: AuthCubit.get(context)
-                                      .registerDateController,
-                                  // Use a dedicated controller
-                                  fillColor: HexColor('#DADADA'),
-                                  borderRadius: 14.r,
+                                    isPassword: false,
+                                    controller: authCubit.updateDateController,
+                                    // Use a dedicated controller
+                                    fillColor: HexColor('#DADADA'),
+                                    borderRadius: 14.r,
 
-                                  onTap: () async {
-                                    DateTime? selectedDate =
-                                        await showDatePicker(
-                                      barrierLabel: LocaleKeys.chooseDate.tr(),
-                                      cancelText: LocaleKeys.close.tr(),
-                                      helpText: LocaleKeys.chooseDate.tr(),
-                                      confirmText: LocaleKeys.confirm.tr(),
-                                      initialEntryMode:
-                                          DatePickerEntryMode.calendarOnly,
+                                    onTap: () async {
+                                      DateTime? selectedDate =
+                                          await showDatePicker(
+                                        barrierLabel:
+                                            LocaleKeys.chooseDate.tr(),
+                                        cancelText: LocaleKeys.close.tr(),
+                                        helpText: LocaleKeys.chooseDate.tr(),
+                                        confirmText: LocaleKeys.confirm.tr(),
+                                        initialEntryMode:
+                                            DatePickerEntryMode.calendarOnly,
 
-                                      context: context,
-                                      initialDate: AuthCubit.get(context)
-                                              .registerDateController
-                                              .text
-                                              .isNotEmpty
-                                          ? DateTime.parse(
-                                              AuthCubit.get(context)
-                                                  .registerDateController
-                                                  .text)
-                                          : DateTime.now(),
-                                      // Default initial date
-                                      firstDate: DateTime(1900),
-                                      // Earliest selectable date
-                                      lastDate: DateTime.now(),
-                                      // Latest selectable date
-                                      builder: (context, child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            colorScheme: ColorScheme.light(
-                                              primary: AppColors.primaryColor,
-                                              // Customize the primary color
-                                              onPrimary: Colors.white,
-                                              // Text color on primary
-                                              onSurface: AppColors
-                                                  .black, // Text color on surface
-                                            ),
-                                            textButtonTheme:
-                                                TextButtonThemeData(
-                                              style: TextButton.styleFrom(
-                                                foregroundColor: AppColors
-                                                    .primaryColor, // Button color
+                                        context: context,
+                                        initialDate: AuthCubit.get(context)
+                                                .updateDateController
+                                                .text
+                                                .isNotEmpty
+                                            ? DateTime.parse(
+                                                AuthCubit.get(context)
+                                                    .updateDateController
+                                                    .text)
+                                            : DateTime.now(),
+                                        // Default initial date
+                                        firstDate: DateTime(1900),
+                                        // Earliest selectable date
+                                        lastDate: DateTime.now(),
+                                        // Latest selectable date
+                                        builder: (context, child) {
+                                          return Theme(
+                                            data: Theme.of(context).copyWith(
+                                              colorScheme: ColorScheme.light(
+                                                primary: AppColors.primaryColor,
+                                                // Text color on primary
+                                                onSurface: AppColors
+                                                    .black, // Text color on surface
+                                              ),
+                                              textButtonTheme:
+                                                  TextButtonThemeData(
+                                                style: TextButton.styleFrom(
+                                                  foregroundColor: AppColors
+                                                      .primaryColor, // Button color
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          child: child!,
-                                        );
-                                      },
-                                    );
+                                            child: child!,
+                                          );
+                                        },
+                                      );
 
-                                    // Update the Cubit with the selected date
-                                    if (selectedDate != null) {
-                                      AuthCubit.get(context)
-                                          .updateBirthDate(selectedDate);
-                                    }
-                                  },
-                                  onIconTap: () {},
-                                  suffixIcon: const Icon(Icons.calendar_today),
-                                  // Calendar icon
-                                  obscureText: false,
+                                      // Update the Cubit with the selected date
+                                      if (selectedDate != null) {
+                                        AuthCubit.get(context)
+                                            .updateBirthDate(selectedDate);
+                                      }
+                                    },
+                                    onIconTap: () {},
+                                    suffixIcon:
+                                        const Icon(Icons.calendar_today),
+                                    // Calendar icon
+                                    obscureText: false,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            BlocBuilder<AuthCubit, AuthState>(
+                              builder: (context, state) {
+                                return CustomTextFormField(
+                                  title: LocaleKeys.password.tr(),
+                                  hint: LocaleKeys.passwordHint.tr(),
+                                  icon: AppAssets.password,
+                                  titleColor: AppColors.black,
+                                  isPassword: true,
                                   validator: (value) {
                                     if ((value ?? '').trim().isEmpty) {
-                                      return LocaleKeys.birthDateError.tr();
+                                      return LocaleKeys.passwordError.tr();
                                     }
                                     return null;
                                   },
-                                ),
-                              ),
-                            ],
-                          ),
-                          BlocBuilder<AuthCubit, AuthState>(
-                            builder: (context, state) {
-                              return CustomTextFormField(
-                                title: LocaleKeys.password.tr(),
-                                hint: LocaleKeys.passwordHint.tr(),
-                                icon: AppAssets.password,
-                                titleColor: AppColors.black,
-                                isPassword: true,
-                                validator: (value) {
-                                  if ((value ?? '').trim().isEmpty) {
-                                    return LocaleKeys.passwordError.tr();
-                                  }
-                                  return null;
-                                },
-                                fillColor: HexColor('#DADADA'),
-                                borderRadius: 14.r,
-                                textInputAction: TextInputAction.done,
-                                obscureText:
-                                    AuthCubit.get(context).showPassword,
-                                controller: AuthCubit.get(context)
-                                    .registerPasswordController,
-                                onIconTap: AuthCubit.get(context)
-                                    .changePasswordVisibility,
-                                suffixIcon: !AuthCubit.get(context).showPassword
-                                    ? Icon(
-                                        Icons.visibility,
-                                        color: AppColors.grey,
-                                      )
-                                    : Icon(
-                                        Icons.visibility_off,
-                                        color: AppColors.grey,
-                                      ),
-                                keyboardType: TextInputType.visiblePassword,
-                              );
-                            },
-                          ),
-                          Spacer(),
-                          GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  barrierDismissible: false,
-                                  context: context,
-                                  builder: (context) => Dialog(
-                                    backgroundColor:
-                                        AppColors.white.withValues(alpha: 0.65),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.r),
-                                    ),
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                        sigmaX: 4.0,
-                                        sigmaY: 4.0,
-                                      ),
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 30.h, horizontal: 40.w),
-                                        //EdgeInsets.all(50.sp),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: AppColors.white,
-                                            width: 2.w,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(20.r),
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            SvgPicture.asset(
-                                              AppAssets.confirm,
-                                              height: 80.h,
-                                              width: 80.w,
-                                              colorFilter:
-                                                  const ColorFilter.mode(
-                                                      Colors.green,
-                                                      BlendMode.srcIn),
-                                            ),
-                                            SizedBox(height: 24.h),
-                                            TextTitle(
-                                              'تم تحديث بياناتك\nبنجاح',
-                                              fontSize: 18.sp,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                                Future.delayed(const Duration(seconds: 2)).then(
-                                  (value) {
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
+                                  fillColor: HexColor('#DADADA'),
+                                  borderRadius: 14.r,
+                                  textInputAction: TextInputAction.done,
+                                  obscureText:
+                                  authCubit.passwordVisibility['password']!,
+                                  controller: AuthCubit.get(context)
+                                      .updatePasswordController,
+                                  onIconTap: () {
+                                    authCubit.changePasswordVisibility('password');
                                   },
+                                  suffixIcon:
+                                      !authCubit.passwordVisibility['password']!
+                                          ? Icon(
+                                              Icons.visibility,
+                                              color: AppColors.grey,
+                                            )
+                                          : Icon(
+                                              Icons.visibility_off,
+                                              color: AppColors.grey,
+                                            ),
+                                  keyboardType: TextInputType.visiblePassword,
                                 );
                               },
-                              child: Container(
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.w, vertical: 8.h),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14.r),
-                                    gradient: LinearGradient(colors: [
-                                      HexColor('#39FAD9'),
-                                      HexColor('#03A186'),
-                                    ]),
-                                  ),
-                                  child: Row(
-                                    spacing: 8.w,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      TextBody14(
-                                        'تحديث البيانات',
-                                        color: AppColors.white,
+                            ),
+                            const Spacer(),
+                            BlocConsumer<AuthCubit, AuthState>(
+                              listener: (context, state) {
+                                if (state is AuthUpdateSuccessState) {
+                                  showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (context) => Dialog(
+                                      backgroundColor: AppColors.white
+                                          .withValues(alpha: 0.65),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.r),
                                       ),
-                                      SvgPicture.asset(
-                                        AppAssets.right,
-                                        height: 16.h,
-                                        width: 16.w,
-                                        colorFilter: ColorFilter.mode(
-                                            AppColors.white, BlendMode.srcIn),
-                                      )
-                                    ],
-                                  )))
-                        ]),
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(
+                                          sigmaX: 4.0,
+                                          sigmaY: 4.0,
+                                        ),
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 30.h, horizontal: 40.w),
+                                          //EdgeInsets.all(50.sp),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: AppColors.white,
+                                              width: 2.w,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(20.r),
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SvgPicture.asset(
+                                                AppAssets.confirm,
+                                                height: 80.h,
+                                                width: 80.w,
+                                                colorFilter:
+                                                    const ColorFilter.mode(
+                                                        Colors.green,
+                                                        BlendMode.srcIn),
+                                              ),
+                                              SizedBox(height: 24.h),
+                                              TextTitle(
+                                                'تم تحديث بياناتك\nبنجاح',
+                                                fontSize: 18.sp,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                  Future.delayed(const Duration(seconds: 2))
+                                      .then(
+                                    (value) {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    },
+                                  );
+                                } else if (state is AuthUpdateErrorState) {
+                                  authCubit.viewToast(
+                                    state.msg,
+                                    context,
+                                    AppColors.red,
+                                    4,
+                                  );
+                                }
+                              },
+                              builder: (context, state) {
+                                if (state is AuthUpdateLoadingState) {
+                                  return Center(
+                                    child: LoadingAnimationWidget.inkDrop(
+                                        color: AppColors.primaryColor,
+                                        size: 20.sp),
+                                  );
+                                } else {
+                                  return GestureDetector(
+                                      onTap: () {
+                                        if (authCubit
+                                            .updateFormKey.currentState!
+                                            .validate()) {
+                                          //   debugPrint(authCubit.updatePhoneController.text);
+                                          authCubit.updateProfile(context);
+                                        }
+                                      },
+                                      child: Container(
+                                          alignment: Alignment.center,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16.w, vertical: 8.h),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(14.r),
+                                            gradient: LinearGradient(colors: [
+                                              HexColor('#39FAD9'),
+                                              HexColor('#03A186'),
+                                            ]),
+                                          ),
+                                          child: Row(
+                                            spacing: 8.w,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              TextBody14(
+                                                'تحديث البيانات',
+                                                color: AppColors.white,
+                                              ),
+                                              SvgPicture.asset(
+                                                AppAssets.right,
+                                                height: 16.h,
+                                                width: 16.w,
+                                                colorFilter: ColorFilter.mode(
+                                                    AppColors.white,
+                                                    BlendMode.srcIn),
+                                              )
+                                            ],
+                                          )));
+                                }
+                              },
+                            )
+                          ]),
+                    ),
                   ),
                 ),
               ),

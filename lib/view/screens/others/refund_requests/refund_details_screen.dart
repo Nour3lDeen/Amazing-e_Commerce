@@ -1,9 +1,14 @@
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/model/cart_item_model/history_cart_model.dart';
+import 'package:ecommerce/model/returned/returned_model.dart';
 import 'package:ecommerce/view/screens/brands_sceen/brands_screen.dart';
 import 'package:ecommerce/view/screens/categories/components/favorite_component/favorite_component.dart';
 import 'package:ecommerce/view/screens/categories/components/share_component/share_component.dart';
 import 'package:ecommerce/view/screens/others/policies/refund_policy/refund_policy.dart';
+import 'package:ecommerce/view/screens/others/refund_requests/refund_request_screen.dart';
 import 'package:ecommerce/view_model/cubits/auth/auth_cubit.dart';
+import 'package:ecommerce/view_model/cubits/cart/cart_cubit.dart';
 import 'package:ecommerce/view_model/cubits/products/products_cubit.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:ecommerce/view_model/utils/app_assets/app_assets.dart';
@@ -14,21 +19,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../../../../view_model/cubits/home/bottom_nav_cubit.dart';
 import '../../../common_components/custom_button/custom_button.dart';
 import '../../categories/components/counter_component/counter_component.dart';
+import '../../home/home_screen.dart';
 
 class RefundDetailsScreen extends StatelessWidget {
-  const RefundDetailsScreen({super.key, required this.fromCart});
+  const RefundDetailsScreen(
+      {super.key,
+      required this.fromCart,
+      required this.orderItem,
+      required this.returnedItem});
 
   final bool fromCart;
+  final OrderItems orderItem;
+  final ReturnedModel returnedItem;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
-        //final cubit = ProductsCubit.get(context);
-
         return Scaffold(
           backgroundColor: AppColors.white,
           body: SingleChildScrollView(
@@ -48,7 +60,11 @@ class RefundDetailsScreen extends StatelessWidget {
                             color: AppColors.grey.withValues(alpha: 0.2),
                             image: DecorationImage(
                               fit: BoxFit.fill,
-                              image: AssetImage(AppAssets.header),
+                              image: CachedNetworkImageProvider(
+                                fromCart
+                                    ? orderItem.colorImage ?? ''
+                                    : returnedItem.orderItem?.colorImage ?? '',
+                              ),
                             ),
                           ),
                           child: Stack(children: [
@@ -77,134 +93,18 @@ class RefundDetailsScreen extends StatelessWidget {
                                       ),
                                     ),
                                     const Spacer(),
-                                    FavoriteComponent(productId: 1),
+                                    FavoriteComponent(
+                                        productId: fromCart
+                                            ? orderItem.product?.id ?? 0
+                                            : returnedItem
+                                                    .orderItem?.product?.id ??
+                                                0),
                                     SizedBox(width: 10.w),
                                     const ShareComponent(),
                                   ],
                                 ),
-                                const Spacer(),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 8.w),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 10.0, sigmaY: 10.0),
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 50.h,
-                                        decoration: BoxDecoration(
-                                          color: HexColor('#EFEFEF')
-                                              .withValues(alpha: 0.7),
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: AppColors.black
-                                                  .withValues(alpha: 0.3),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 1),
-                                            ),
-                                          ],
-                                        ),
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: List.generate(
-                                              5,
-                                              (index) {
-                                                final isSelected = index == 0;
-
-                                                return InkWell(
-                                                  onTap: () {},
-                                                  child: Center(
-                                                    child: Container(
-                                                      width: 75.w,
-                                                      // height: 50.h,
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                        vertical: 4.h,
-                                                        horizontal: 4.w,
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        shape:
-                                                            BoxShape.rectangle,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.r),
-                                                      ),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.r),
-                                                        child: Stack(
-                                                          children: [
-                                                            Positioned.fill(
-                                                                child:
-                                                                    Image.asset(
-                                                              AppAssets.header,
-                                                              fit: BoxFit.cover,
-                                                            )),
-                                                            if (!isSelected)
-                                                              Positioned.fill(
-                                                                child:
-                                                                    Container(
-                                                                  color: Colors
-                                                                      .black
-                                                                      .withValues(
-                                                                          alpha:
-                                                                              0.4),
-                                                                ),
-                                                              ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
                               ],
                             ),
-                            /*Image.asset(
-                                  AppAssets.trailer,
-                                  fit: BoxFit.cover,
-                                ),*/
-                            /*FutureBuilder(
-                                  future: precacheImage(
-                                    CachedNetworkImageProvider(
-                                        cubit.peekStack() ?? cubit.imageUrl),
-                                    context,
-                                  ),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Center(
-                                        child: LoadingAnimationWidget.inkDrop(
-                                          color: AppColors.primaryColor,
-                                          size: 30.sp,
-                                        ),
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return const Center(
-                                        child: Icon(Icons.error),
-                                      );
-                                    } else {
-                                      return const SizedBox();
-                                    }
-                                  },
-                                ),*/
                           ]),
                         );
                       },
@@ -215,7 +115,7 @@ class RefundDetailsScreen extends StatelessWidget {
                   ],
                 ),
                 PositionedDirectional(
-                  top: 285.h,
+                  top: 260.h,
                   bottom: 0,
                   start: 0,
                   end: 0,
@@ -228,7 +128,6 @@ class RefundDetailsScreen extends StatelessWidget {
                       filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                       child: Container(
                         width: double.infinity,
-                        clipBehavior: Clip.none,
                         padding: EdgeInsets.only(
                             left: 16.w, right: 16.w, top: 12.h, bottom: 12.h),
                         decoration: BoxDecoration(
@@ -255,39 +154,40 @@ class RefundDetailsScreen extends StatelessWidget {
                               color: HexColor('#FD6868'),
                               fontSize: 20.sp,
                             )),
+                            SizedBox(height: 8.h),
                             Row(
                               children: [
                                 TextTitle(
-                                  'هودي بسوستة',
+                                  fromCart
+                                      ? '${orderItem.product?.name}'
+                                      : '${returnedItem.orderItem?.product?.name}',
                                   color: AppColors.primaryColor,
-                                  fontSize: 18.sp,
+                                  fontSize: 17.sp,
                                 ),
                                 const Spacer(),
-                                Row(
-                                  children: List.generate(3, (index) {
-                                    return Padding(
-                                      padding: EdgeInsets.only(left: 4.w),
-                                      child: SvgPicture.asset(AppAssets.star),
-                                    );
-                                  }),
+                                TextDescription(
+                                  fromCart
+                                      ? '(${orderItem.product?.rate})'
+                                      : '(${returnedItem.orderItem?.product?.rate})',
                                 ),
+                                SvgPicture.asset(AppAssets.star)
                               ],
                             ),
                             SizedBox(height: 8.h),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Row(
                                   children: [
                                     TextBody14(
-                                      '55 ر.س',
+                                      fromCart
+                                          ? '${orderItem.total} ر.س'
+                                          : '${returnedItem.orderItem?.total} ر.س',
                                       color: AppColors.black,
                                     ),
                                   ],
                                 ),
                                 const Spacer(),
-                                TextBody14('المقاس'),
+                                const TextBody14('المقاس'),
                                 SizedBox(width: 8.w),
                                 Container(
                                     width: 65.w,
@@ -299,7 +199,9 @@ class RefundDetailsScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8.r),
                                     ),
                                     child: TextBody12(
-                                      'XXL',
+                                      fromCart
+                                          ? '${orderItem.sizeCode}'
+                                          : '${returnedItem.orderItem?.sizeCode}',
                                     ))
                               ],
                             ),
@@ -309,18 +211,13 @@ class RefundDetailsScreen extends StatelessWidget {
                                 width: 40.w,
                                 height: 25.h,
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.r),
-                                    color: AppColors.white,
-                                    border: Border.all(
-                                        color: AppColors.primaryColor),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black
-                                            .withValues(alpha: 0.15),
-                                        offset: Offset(1.w, 3.h),
-                                        blurRadius: 6.0,
-                                      ),
-                                    ]),
+                                  borderRadius: BorderRadius.circular(6.r),
+                                  color: HexColor(fromCart
+                                      ? '${orderItem.colorCode ?? '#FFFFFF'}'
+                                      : '${returnedItem.orderItem?.colorCode ?? '#FFFFFF'}'),
+                                  border:
+                                      Border.all(color: AppColors.primaryColor),
+                                ),
                               ),
                             ),
                             SizedBox(height: 8.h),
@@ -331,16 +228,92 @@ class RefundDetailsScreen extends StatelessWidget {
                                   'العدد المطلوب : ',
                                   color: AppColors.black,
                                 ),
-                                TextBody14('5 قطع'),
+                                TextBody14(
+                                  fromCart
+                                      ? '${orderItem.quantity} قطع'
+                                      : '${returnedItem.orderItem?.quantity} قطع',
+                                  color: AppColors.black,
+                                ),
                                 const Spacer(),
                                 Column(
                                   children: [
-                                    TextBody12('القطع المسترجعة'),
+                                    const TextBody12('القطع المسترجعة'),
                                     SizedBox(height: 2.h),
-                                    CounterComponent(
-                                      productId: 1,
-                                      cart: false,
-                                      productCount: 1,
+                                    BlocBuilder<ProductsCubit, ProductsState>(
+                                      builder: (context, state) {
+                                        final ProductsCubit cubit =
+                                            ProductsCubit.get(context);
+                                        final int productId =
+                                            orderItem.product?.id ?? 0;
+                                        return Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (fromCart) {
+                                                  if (cubit.getProductCount(
+                                                          productId) <
+                                                      orderItem.quantity!) {
+                                                    cubit.incrementNumber(
+                                                        productId);
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 18.h,
+                                                width: 18.w,
+                                                decoration: BoxDecoration(
+                                                  color: HexColor('#B6B6B6'),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Center(
+                                                  child: TextBody12('+'),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 18.h,
+                                              width: 32.w,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(20.r),
+                                              ),
+                                              child: Center(
+                                                child: TextBody12(
+                                                  fontSize: 11.sp,
+                                                  fromCart
+                                                      ? '${cubit.getProductCount(productId)}'
+                                                      : '${returnedItem.orderItem?.quantity}',
+                                                ),
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (fromCart) {
+                                                  if (cubit.getProductCount(
+                                                          productId) >
+                                                      orderItem.quantity!) {
+                                                    cubit.decrementNumber(
+                                                        productId);
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 18.h,
+                                                width: 18.w,
+                                                decoration: BoxDecoration(
+                                                  color: HexColor('#B6B6B6'),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Center(
+                                                  child: TextBody14('-'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     ),
                                   ],
                                 )
@@ -350,27 +323,33 @@ class RefundDetailsScreen extends StatelessWidget {
                               height: 8.h,
                             ),
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               spacing: 6.w,
                               children: [
                                 const TextBody14('العلامة التجارية:'),
                                 GestureDetector(
                                   onTap: () {
-                                    Navigation.push(context, BrandsScreen());
+                                    Navigation.push(
+                                        context, const BrandsScreen());
                                   },
                                   child: TextBody14(
-                                    'LIL-ليل',
+                                    fromCart
+                                        ? '${orderItem.product?.brandName ?? ''}'
+                                        : '${returnedItem.orderItem?.product?.brandName ?? ''}',
                                     color: HexColor('#0082C8'),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 TextBody14(
                                   'تاريخ الطلب: ',
                                   fontSize: 10.sp,
                                 ),
-                                TextBody14('10/12/2024', fontSize: 10.sp),
+                                TextBody14(
+                                    fromCart
+                                        ? '${orderItem.createdAt}'
+                                        : '${returnedItem.createdAt}',
+                                    fontSize: 10.sp),
                               ],
                             ),
                             SizedBox(
@@ -409,14 +388,18 @@ class RefundDetailsScreen extends StatelessWidget {
                                             color: AppColors.primaryColor,
                                           ),
                                           TextBody14(
-                                            'قيد المراجعة',
-                                            color: HexColor('#377AD2'),
+                                            CartCubit.get(context)
+                                                .localizeStatus(
+                                                    returnedItem.status ?? ''),
+                                            color: CartCubit.get(context)
+                                                .statusColor(
+                                                    returnedItem.status ?? ''),
                                           )
                                         ],
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 12.h),
+                                  /* SizedBox(height: 12.h),
                                   TextTitle(
                                     'تفاصيل حالة الطلب',
                                     color: AppColors.primaryColor,
@@ -424,9 +407,10 @@ class RefundDetailsScreen extends StatelessWidget {
                                   SizedBox(
                                     height: 6.h,
                                   ),
-                                  TextBody14(
+                                  const TextBody14(
                                       textAlign: TextAlign.center,
                                       'طلبكم قيد المراجعه من قبل القائمين في قسم استرجاع المنتجات لدينا , عادتاً ما يتم الرد خلال 48 ساعة فترقبو الرد من خلال الاشعارات الواردة اليكم علي التطبيق او عن طريق البريد الالكتروني الخاص بكم .')
+                                */
                                 ],
                               ),
                               child: Column(
@@ -437,7 +421,7 @@ class RefundDetailsScreen extends StatelessWidget {
                                         'سبب الاسترجاع؟',
                                         color: AppColors.primaryColor,
                                       ),
-                                      Spacer(),
+                                      const Spacer(),
                                       GestureDetector(
                                         onTap: () {
                                           Navigation.push(
@@ -483,19 +467,24 @@ class RefundDetailsScreen extends StatelessWidget {
                                   ),
                                   SizedBox(height: 12.h),
                                   DropdownButtonFormField<String>(
-                                    items: ['سبب 1', 'سبب 2', 'سبب 3']
+                                    items: CartCubit.get(context)
+                                        .reasons
                                         .map(
                                           (item) => DropdownMenuItem<String>(
-                                            value: item,
+                                            value: item.name,
                                             child: TextBody12(
-                                              item,
+                                              '${item.name}',
                                               overflow: TextOverflow.ellipsis,
                                               color: AppColors.black,
                                             ),
                                           ),
                                         )
                                         .toList(),
-                                    onChanged: (value) {},
+                                    onChanged: (value) {
+                                      CartCubit.get(context)
+                                          .changeReason(value!);
+                                      debugPrint('value: $value');
+                                    },
                                     decoration: InputDecoration(
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius:
@@ -548,90 +537,132 @@ class RefundDetailsScreen extends StatelessWidget {
                                   SizedBox(
                                     height: 12.h,
                                   ),
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Row(
+                                  BlocBuilder<ProductsCubit, ProductsState>(
+                                    builder: (context, state) {
+                                      final cubit = ProductsCubit.get(context);
+                                      return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
                                           children: [
                                             GestureDetector(
-                                              onTap: () {},
-                                              child: Container(
-                                                width: 24.w,
-                                                height: 24.h,
-                                                padding: EdgeInsets.all(3.sp),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                      color: AppColors
-                                                          .primaryColor,
-                                                      width: 1.5.sp),
-                                                  color: Colors.transparent,
-                                                ),
-                                                child: Container(
-                                                  width: 12.w,
-                                                  height: 12.h,
-                                                  decoration: BoxDecoration(
+                                              onTap: () {
+                                                cubit
+                                                    .changeRefundType('wallet');
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 24.w,
+                                                    height: 24.h,
+                                                    padding:
+                                                        EdgeInsets.all(3.sp),
+                                                    decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       border: Border.all(
                                                           color: AppColors
                                                               .primaryColor,
-                                                          width: 1.sp),
-                                                      color:
-                                                          Colors.transparent),
-                                                ),
+                                                          width: 1.5.sp),
+                                                      color: Colors.transparent,
+                                                    ),
+                                                    child: Container(
+                                                      width: 12.w,
+                                                      height: 12.h,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          gradient: cubit
+                                                                      .refundType ==
+                                                                  'wallet'
+                                                              ? LinearGradient(
+                                                                  begin: Alignment
+                                                                      .topRight,
+                                                                  end: Alignment
+                                                                      .bottomLeft,
+                                                                  colors: [
+                                                                      HexColor(
+                                                                          '#29F3D1'),
+                                                                      HexColor(
+                                                                          '#177565'),
+                                                                    ])
+                                                              : null,
+                                                          border: Border.all(
+                                                              color: AppColors
+                                                                  .primaryColor,
+                                                              width: 1.sp),
+                                                          color: cubit.refundType ==
+                                                                  'wallet'
+                                                              ? null
+                                                              : Colors
+                                                                  .transparent),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 6.w,
+                                                  ),
+                                                  const TextBody12(
+                                                      'رصيد للمحفظة'),
+                                                ],
                                               ),
                                             ),
-                                            SizedBox(
-                                              width: 6.w,
-                                            ),
-                                            TextBody12('رصيد للمحفظة'),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
                                             GestureDetector(
-                                              onTap: () {},
-                                              child: Container(
-                                                width: 24.w,
-                                                height: 24.h,
-                                                padding: EdgeInsets.all(3.sp),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                      color: AppColors
-                                                          .primaryColor,
-                                                      width: 1),
-                                                  color: Colors.transparent,
-                                                ),
-                                                child: Container(
-                                                  width: 12.w,
-                                                  height: 12.h,
-                                                  decoration: BoxDecoration(
+                                              onTap: () {
+                                                cubit.changeRefundType('cash');
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 24.w,
+                                                    height: 24.h,
+                                                    padding:
+                                                        EdgeInsets.all(3.sp),
+                                                    decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       border: Border.all(
                                                           color: AppColors
-                                                              .primaryColor,
-                                                          width: 1),
-                                                      gradient: LinearGradient(
-                                                          begin: Alignment
-                                                              .topRight,
-                                                          end: Alignment
-                                                              .bottomLeft,
-                                                          colors: [
-                                                            HexColor('#29F3D1'),
-                                                            HexColor('#177565'),
-                                                          ])),
-                                                ),
+                                                              .primaryColor),
+                                                      color: Colors.transparent,
+                                                    ),
+                                                    child: Container(
+                                                      width: 12.w,
+                                                      height: 12.h,
+                                                      decoration: BoxDecoration(
+                                                          color: cubit.refundType ==
+                                                                  'cash'
+                                                              ? null
+                                                              : Colors
+                                                                  .transparent,
+                                                          shape: BoxShape
+                                                              .circle,
+                                                          border: Border.all(
+                                                              color: AppColors
+                                                                  .primaryColor),
+                                                          gradient: cubit
+                                                                      .refundType ==
+                                                                  'cash'
+                                                              ? LinearGradient(
+                                                                  begin: Alignment
+                                                                      .topRight,
+                                                                  end: Alignment
+                                                                      .bottomLeft,
+                                                                  colors: [
+                                                                      HexColor(
+                                                                          '#29F3D1'),
+                                                                      HexColor(
+                                                                          '#177565'),
+                                                                    ])
+                                                              : null),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 6.w,
+                                                  ),
+                                                  const TextBody12('نقدي'),
+                                                ],
                                               ),
                                             ),
-                                            SizedBox(
-                                              width: 6.w,
-                                            ),
-                                            TextBody12('نقدي'),
-                                          ],
-                                        ),
-                                      ]),
+                                          ]);
+                                    },
+                                  ),
                                 ],
                               ),
                             ),
@@ -689,16 +720,59 @@ class RefundDetailsScreen extends StatelessWidget {
                                                     color: AppColors.black,
                                                     textAlign: TextAlign.center,
                                                   ),
-                                                  Row(
-                                                    spacing: 8.w,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                    children: [
-                                                      Expanded(
-                                                        child: CustomButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(
+                                                  BlocConsumer<CartCubit,
+                                                      CartState>(
+                                                    listener: (context, state) {
+                                                      if (state
+                                                          is CancelReturnedSuccessState) {
+                                                        Navigator.pop(context);
+                                                        Navigator.pop(context);
+                                                        AuthCubit.get(context)
+                                                            .viewToast(
+                                                                state.msg,
+                                                                context,
+                                                                Colors.green,
+                                                                3);
+                                                      }
+                                                      if (state
+                                                          is CancelReturnedErrorState) {
+                                                        Navigator.pop(context);
+                                                        AuthCubit.get(context)
+                                                            .viewToast(
+                                                                state.error,
+                                                                context,
+                                                                Colors.red,
+                                                                4);
+                                                      }
+                                                    },
+                                                    builder: (context, state) {
+                                                      final cartCubit =
+                                                          CartCubit.get(
+                                                              context);
+                                                      if (state
+                                                          is CancelReturnedLoadingState) {
+                                                        return Center(
+                                                          child: LoadingAnimationWidget
+                                                              .inkDrop(
+                                                                  color: AppColors
+                                                                      .primaryColor,
+                                                                  size: 15.sp),
+                                                        );
+                                                      }
+                                                      return Row(
+                                                        spacing: 8.w,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          Expanded(
+                                                            child: CustomButton(
+                                                              onPressed: () {
+                                                                cartCubit.cancelReturned(
+                                                                    returnedItem
+                                                                            .id ??
+                                                                        0);
+                                                                /*  Navigator.pop(
                                                               context,
                                                             );
                                                             Navigator.pop(
@@ -710,110 +784,107 @@ class RefundDetailsScreen extends StatelessWidget {
                                                                     'تم إلغاء طلب الإسترجاع بنجاح',
                                                                     context,
                                                                     Colors
-                                                                        .green);
-                                                          },
-                                                          gradient:
-                                                              LinearGradient(
-                                                                  colors: [
-                                                                HexColor(
-                                                                  '#66B873',
-                                                                ),
-                                                                HexColor(
-                                                                  '#0AB023',
-                                                                )
-                                                              ]),
-                                                          borderRadius: 8.r,
-                                                          child: Padding(
-                                                            padding: EdgeInsets
-                                                                .symmetric(
-                                                                    vertical:
-                                                                        4.h),
-                                                            child: SizedBox(
-                                                              width: 95.w,
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  TextBody12(
-                                                                    'تأكيد',
-                                                                    color: AppColors
-                                                                        .white,
-                                                                  ),
-                                                                  SizedBox(
-                                                                      width:
-                                                                          4.w),
-                                                                  SvgPicture
-                                                                      .asset(
-                                                                    AppAssets
-                                                                        .right,
-                                                                    colorFilter: ColorFilter.mode(
-                                                                        AppColors
+                                                                        .green,
+                                                                    2);*/
+                                                              },
+                                                              gradient:
+                                                                  LinearGradient(
+                                                                      colors: [
+                                                                    HexColor(
+                                                                      '#66B873',
+                                                                    ),
+                                                                    HexColor(
+                                                                      '#0AB023',
+                                                                    )
+                                                                  ]),
+                                                              borderRadius: 8.r,
+                                                              child: Padding(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        vertical:
+                                                                            4.h),
+                                                                child: SizedBox(
+                                                                  width: 95.w,
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      TextBody12(
+                                                                        'تأكيد',
+                                                                        color: AppColors
                                                                             .white,
-                                                                        BlendMode
-                                                                            .srcIn),
-                                                                    height:
-                                                                        14.h,
+                                                                      ),
+                                                                      SizedBox(
+                                                                          width:
+                                                                              4.w),
+                                                                      SvgPicture
+                                                                          .asset(
+                                                                        AppAssets
+                                                                            .right,
+                                                                        colorFilter: ColorFilter.mode(
+                                                                            AppColors.white,
+                                                                            BlendMode.srcIn),
+                                                                        height:
+                                                                            14.h,
+                                                                      ),
+                                                                    ],
                                                                   ),
-                                                                ],
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: CustomButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          backgroundColor:
-                                                              AppColors.white,
-                                                          child: Container(
-                                                            width: 95.w,
-                                                            padding: EdgeInsets
-                                                                .symmetric(
-                                                                    vertical:
-                                                                        4.h),
-                                                            decoration: BoxDecoration(
-                                                                color: AppColors
-                                                                    .white,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8
-                                                                                .r),
-                                                                border: Border.all(
-                                                                    color:
-                                                                        AppColors
-                                                                            .red,
-                                                                    width: 1)),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                TextBody12(
-                                                                  'إلغاء',
-                                                                  color:
-                                                                      AppColors
+                                                          Expanded(
+                                                            child: CustomButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              backgroundColor:
+                                                                  AppColors
+                                                                      .white,
+                                                              child: Container(
+                                                                width: 95.w,
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        vertical:
+                                                                            4.h),
+                                                                decoration: BoxDecoration(
+                                                                    color: AppColors
+                                                                        .white,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(8
+                                                                            .r),
+                                                                    border: Border.all(
+                                                                        color: AppColors
+                                                                            .red)),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    TextBody12(
+                                                                      'إلغاء',
+                                                                      color: AppColors
                                                                           .red,
+                                                                    ),
+                                                                    SizedBox(
+                                                                        width: 4
+                                                                            .w),
+                                                                    Icon(
+                                                                      Icons
+                                                                          .cancel_outlined,
+                                                                      color: AppColors
+                                                                          .red,
+                                                                    )
+                                                                  ],
                                                                 ),
-                                                                SizedBox(
-                                                                    width: 4.w),
-                                                                Icon(
-                                                                  Icons
-                                                                      .cancel_outlined,
-                                                                  color:
-                                                                      AppColors
-                                                                          .red,
-                                                                )
-                                                              ],
+                                                              ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                    ],
+                                                        ],
+                                                      );
+                                                    },
                                                   ),
                                                 ],
                                               ),
@@ -860,110 +931,166 @@ class RefundDetailsScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(14.r),
-                                  onTap: () {
-                                    debugPrint('Accept Request');
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) {
-                                        return Dialog(
-                                          backgroundColor: AppColors.white
-                                              .withValues(alpha: 0.65),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20.r),
-                                          ),
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(
-                                              sigmaX: 6.0,
-                                              sigmaY: 6.0,
+                                child: BlocConsumer<CartCubit, CartState>(
+                                  listener: (context, state) {
+                                    if (state
+                                        is SendRefundRequestSuccessState) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) {
+                                          return Dialog(
+                                            backgroundColor: AppColors.white
+                                                .withValues(alpha: 0.65),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20.r),
                                             ),
-                                            child: Container(
-                                              width: 230.w,
-                                              height: 150.h,
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 16.h,
-                                                  horizontal: 20.w),
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: AppColors.white,
-                                                  width: 2.w,
+                                            child: BackdropFilter(
+                                              filter: ImageFilter.blur(
+                                                sigmaX: 6.0,
+                                                sigmaY: 6.0,
+                                              ),
+                                              child: Container(
+                                                width: 230.w,
+                                                height: 150.h,
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 16.h,
+                                                    horizontal: 20.w),
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: AppColors.white,
+                                                    width: 2.w,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.r),
                                                 ),
-                                                borderRadius:
-                                                    BorderRadius.circular(20.r),
-                                              ),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    AppAssets.confirm,
-                                                    height: 75.h,
-                                                  ),
-                                                  TextTitle(
-                                                    'تم تأكيد الطلب',
-                                                    color: AppColors.black,
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    SvgPicture.asset(
+                                                      AppAssets.confirm,
+                                                      height: 75.h,
+                                                    ),
+                                                    TextTitle(
+                                                      'تم تأكيد الطلب',
+                                                      color: AppColors.black,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                    Future.delayed(Duration(seconds: 2), () {
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
-                                    });
-
+                                          );
+                                        },
+                                      );
+                                      Future.delayed(const Duration(seconds: 2),
+                                          () {
+                                            CartCubit.get(context)
+                                                .getReturnedItems();
+                                            Navigation.pushAndRemove(
+                                                context, const HomeScreen());
+                                            BottomNavCubit.get(context)
+                                                .changeIndex(4);
+                                            Navigation.push(context,
+                                                const RefundRequestScreen());
+                                      });
+                                    }
+                                    if (state is SendRefundRequestErrorState) {
+                                      AuthCubit.get(context).viewToast(
+                                          state.error,
+                                          context,
+                                          AppColors.red,
+                                          4);
+                                    }
                                   },
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 40.h,
-                                    alignment: Alignment.center,
-                                    margin: EdgeInsets.only(top: 12.h),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12.w, vertical: 5.h),
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            HexColor('#39FAD9'),
-                                            HexColor('#03A186')
-                                          ],
-                                        ),
+                                  builder: (context, state) {
+                                    final cartCubit = CartCubit.get(context);
+                                    if (state
+                                        is SendRefundRequestLoadingState) {
+                                      return Center(
+                                          child: LoadingAnimationWidget.inkDrop(
+                                              color: AppColors.primaryColor,
+                                              size: 20.sp));
+                                    } else {
+                                      return InkWell(
                                         borderRadius:
                                             BorderRadius.circular(14.r),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppColors.black
-                                                .withValues(alpha: 0.15),
-                                            offset: Offset(0.0, 3.h),
-                                            blurRadius: 6.0,
+                                        onTap: () {
+                                          if (cartCubit.selectedReasonId!=-1){
+                                            debugPrint('Accept Request');
+                                            cartCubit.sendRefundRequest(
+                                              orderId: orderItem.id ?? 0,
+                                              quantity:
+                                                  ProductsCubit.get(context)
+                                                      .getProductCount(orderItem
+                                                              .product?.id ??
+                                                          0),
+                                              type: 'normal',
+                                              refundType:
+                                                  ProductsCubit.get(context)
+                                                      .refundType,
+                                            );
+                                          }else{
+                                            AuthCubit.get(context).viewToast(
+                                                'يرجى اختيار سبب',
+                                                context,
+                                                AppColors.red,
+                                                3);
+                                          }
+                                        },
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 40.h,
+                                          alignment: Alignment.center,
+                                          margin: EdgeInsets.only(top: 12.h),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12.w, vertical: 5.h),
+                                          decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  HexColor('#39FAD9'),
+                                                  HexColor('#03A186')
+                                                ],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(14.r),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppColors.black
+                                                      .withValues(alpha: 0.15),
+                                                  offset: Offset(0.0, 3.h),
+                                                  blurRadius: 6.0,
+                                                ),
+                                              ]),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            spacing: 6.w,
+                                            children: [
+                                              TextTitle(
+                                                'تأكيد الطلب',
+                                                color: AppColors.white,
+                                              ),
+                                              SvgPicture.asset(
+                                                AppAssets.right,
+                                                height: 18.h,
+                                                colorFilter: ColorFilter.mode(
+                                                    AppColors.white,
+                                                    BlendMode.srcIn),
+                                              )
+                                            ],
                                           ),
-                                        ]),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      spacing: 6.w,
-                                      children: [
-                                        TextTitle(
-                                          'تأكيد الطلب',
-                                          color: AppColors.white,
                                         ),
-                                        SvgPicture.asset(
-                                          AppAssets.right,
-                                          height: 18.h,
-                                          colorFilter: ColorFilter.mode(
-                                              AppColors.white, BlendMode.srcIn),
-                                        )
-                                      ],
-                                    ),
-                                  ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
                             ),

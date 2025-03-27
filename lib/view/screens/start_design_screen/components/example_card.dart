@@ -18,7 +18,7 @@ class ExampleCard extends StatelessWidget {
     this.name,
   });
 
-  final String? price;
+  final int? price;
   final int currentStep;
   final int checkId;
   final String image;
@@ -33,7 +33,7 @@ class ExampleCard extends StatelessWidget {
           if (checkId == 100) {
             StartDesignCubit.get(context).pickImage();
           } else {
-            StartDesignCubit.get(context).changeCheck(checkId, type ?? "");
+            StartDesignCubit.get(context).changeCheck(checkId, type ?? '');
             StartDesignCubit.get(context).changeStep(1);
             debugPrint('checkId: $checkId');
           }
@@ -71,7 +71,6 @@ class ExampleCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8.r),
               image: DecorationImage(
                 image: imageProvider,
-                alignment: Alignment.center,
                 fit: BoxFit.cover,
               ),
             ),
@@ -92,14 +91,12 @@ class ExampleCard extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Transform.translate(
                       offset: Offset(0, 4.h),
                       child: Visibility(
                         visible: currentStep == 6,
                         child: Align(
-                          alignment: Alignment.center,
                           child: TextBody12(
                             name ?? '',
                           ),
@@ -128,7 +125,7 @@ class ExampleCard extends StatelessWidget {
                                             .pickImage();
                                       }
                                       StartDesignCubit.get(context)
-                                          .changeCheck(checkId, type ?? "");
+                                          .changeCheck(checkId, type ?? '');
                                       StartDesignCubit.get(context)
                                           .changeStep(1);
                                     } else if (currentStep == 6) {

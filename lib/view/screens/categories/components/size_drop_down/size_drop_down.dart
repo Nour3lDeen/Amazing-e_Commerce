@@ -10,13 +10,25 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class SizeDropdown extends StatelessWidget {
   const SizeDropdown({super.key, required this.sizes});
-final List<Sizes> sizes;
+  final List<Sizes> sizes;
+
   @override
   Widget build(BuildContext context) {
-
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         final cubit = ProductsCubit.get(context);
+
+        // Filter out duplicate size codes
+        final uniqueSizes = sizes.toSet().toList();
+
+        // Debug: Print uniqueSizes
+        debugPrint('Unique Sizes: ${uniqueSizes.map((size) => size.sizeCode).toList()}');
+
+        // Debug: Print selectedSize
+        debugPrint('Selected Size: ${cubit.selectedSize}');
+
+        // Check if selectedSize is valid
+        final isValidSelectedSize = uniqueSizes.any((size) => size.sizeCode == cubit.selectedSize);
 
         return Row(
           children: [
@@ -38,8 +50,8 @@ final List<Sizes> sizes;
                   padding: EdgeInsets.only(left: 8.w),
                   child: SvgPicture.asset(AppAssets.arrowDown),
                 ),
-                value: cubit.selectedSize??'',
-                items: sizes
+                value: isValidSelectedSize ? cubit.selectedSize : null,
+                items: uniqueSizes
                     .map((size) => DropdownMenuItem<String>(
                   value: size.sizeCode,
                   child: Padding(

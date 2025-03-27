@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:ecommerce/model/sections_model/sections_model.dart';
 import 'package:ecommerce/model/start_design/logos_model/logos_model.dart';
 import 'package:ecommerce/model/start_design/product_model/product_model.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,10 +21,10 @@ part 'start_design_state.dart';
 
 class StartDesignCubit extends Cubit<StartDesignState> {
   StartDesignCubit() : super(StartDesignInitial()) {
-    getExamples();
     openMenuId = 1;
     openModelMenuId = 1;
     emit(OpenMenuState());
+    getExamples();
   }
 
   static StartDesignCubit get(BuildContext context) => BlocProvider.of(context);
@@ -254,9 +256,9 @@ class StartDesignCubit extends Cubit<StartDesignState> {
     if (currentCount == 0) {
       changeModelCheck(productId);
     }
-if(currentStep!=6){
-  changeStep(6);
-}
+    if (currentStep != 6) {
+      changeStep(6);
+    }
     emit(ChangeNumberState(productCounts[productId]!));
   }
 
@@ -273,7 +275,7 @@ if(currentStep!=6){
         modelChecked.remove(productId);
         emit(ChangeCheckState(productId, false));
       }
-      if(currentStep!=6){
+      if (currentStep != 6) {
         changeStep(6);
       }
       emit(ChangeNumberState(productCounts[productId]!));
@@ -465,7 +467,6 @@ if(currentStep!=6){
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.image,
-        allowMultiple: false,
       );
 
       // Check if the user selected a file
@@ -566,11 +567,10 @@ if(currentStep!=6){
     return materials
         .firstWhere(
           (element) => element.id == materialChecked.first,
-      orElse: () => PrintType(id: -1, nameAr: ''), // Fallback to a default
-    )
+          orElse: () => PrintType(id: -1, nameAr: ''), // Fallback to a default
+        )
         .nameAr; // Safely return the name
   }
-
 
   List<PrintType> models = [];
 
@@ -598,7 +598,7 @@ if(currentStep!=6){
     });
   }
 
-  List<Product> products = [];
+  List<Products> products = [];
 
   void getModelProducts(int modelId) {
     emit(GetProductLoadingState());
@@ -606,7 +606,7 @@ if(currentStep!=6){
     DioHelper.get(path: '${EndPoints.models}/$modelId').then((value) {
       if (value.data != null && value.data['statusCode'] == 200) {
         final data = (value.data['data'] as List)
-            .map((item) => Product.fromJson(item as Map<String, dynamic>))
+            .map((item) => Products.fromJson(item as Map<String, dynamic>))
             .toList();
         products = data;
 
@@ -631,27 +631,26 @@ if(currentStep!=6){
 
     final int selectedModelId = modelChecked.first;
 
-    final Product selectedProduct = products.firstWhere(
-          (product) => product.id == selectedModelId,
-      orElse: () => Product(id: -1, colors: []),
+    final Products selectedProduct = products.firstWhere(
+      (product) => product.id == selectedModelId,
+      orElse: () => Products(id: -1, colors: []),
     );
 
     if (selectedProduct.id == -1 || selectedProduct.colors == null) {
       return null;
     }
 
-    final ProductColors? selectedColor = selectedProduct.colors!.firstWhere(
-          (color) => color.id == designColor.first,
-      orElse: () => ProductColors(),
+    final ProductsColors? selectedColor = selectedProduct.colors!.firstWhere(
+      (color) => color.id == designColor.first,
+      orElse: () => ProductsColors(),
     );
 
-    if (selectedColor?.id == null || selectedColor?.images == null ) {
+    if (selectedColor?.id == null || selectedColor?.images == null) {
       return null;
     }
 
     return selectedColor?.images!.first.url;
   }
-
 
   final Set<int> designColor = {};
 
@@ -667,7 +666,7 @@ if(currentStep!=6){
   }
 
   List<Sizes> sizes = [];
-  List<ProductColors> colors = [];
+  List<ProductsColors> colors = [];
 
   void getProductSizesAndColors(int productId) {
     emit(GetProductSizesLoadingState());
@@ -675,7 +674,7 @@ if(currentStep!=6){
     try {
       var product = products.firstWhere(
         (p) => p.id == productId,
-        orElse: () => Product(id: 0, sizes: [], colors: []),
+        orElse: () => Products(id: 0, sizes: [], colors: []),
       );
 
       if (product.sizes != null) {
@@ -711,7 +710,7 @@ if(currentStep!=6){
     for (var colorId in designColor) {
       final matchingColor = colors.firstWhere(
         (color) => color.id == colorId,
-        orElse: () => ProductColors(id: -1, colorCode: ''),
+        orElse: () => ProductsColors(id: -1, colorCode: ''),
       );
       if (matchingColor.id != -1) {
         return matchingColor.colorCode;
@@ -733,6 +732,7 @@ if(currentStep!=6){
   bool isSizeChecked(int checkId) {
     return sizeChecked.contains(checkId);
   }
+
   double total = 0.0;
 
   String? getCheckedSize() {
@@ -744,10 +744,11 @@ if(currentStep!=6){
       if (matchingSize.id != -1) {
         if (matchingSize.discountPrice != null) {
           final discountPrice =
-              double.tryParse(matchingSize.discountPrice!) ?? 15.0;
+              double.tryParse(matchingSize.discountPrice.toString()) ?? 15.0;
           total += discountPrice;
         } else {
-          final price = double.tryParse(matchingSize.basicPrice!) ?? 0.0;
+          final price =
+              double.tryParse(matchingSize.basicPrice.toString()) ?? 0.0;
           total += price;
         }
         return matchingSize.sizeCode;
@@ -762,73 +763,81 @@ if(currentStep!=6){
     // Calculate total for examplesChecked
     for (var checkedId in examplesChecked) {
       final matchingExample = examples.firstWhere(
-            (example) => example.id == checkedId,
-        orElse: () => Examples(id: -1, media: '', price: '0.0'),
+        (example) => example.id == checkedId,
+        orElse: () => Examples(id: -1, media: '', price: 0),
       );
       if (matchingExample.id != -1) {
         final count = productCounts[matchingExample.id] ?? 1;
-        total += (double.tryParse(matchingExample.price ?? '0.0') ?? 0.0) * count;
+        total +=
+            (double.tryParse(matchingExample.price.toString()) ?? 0.0) * count;
       }
     }
 
     // Calculate total for imagesChecked
     for (var checkedId in imagesChecked) {
       final matchingImage = images.firstWhere(
-            (image) => image.id == checkedId,
-        orElse: () => Logos(id: -1, image: '', price: '0.0'),
+        (image) => image.id == checkedId,
+        orElse: () => Logos(id: -1, image: '', price: 0),
       );
       if (matchingImage.id != -1) {
         final count = productCounts[matchingImage.id] ?? 1;
-        total += (double.tryParse(matchingImage.price ?? '0.0') ?? 0.0) * count;
+        total +=
+            (double.tryParse(matchingImage.price.toString()) ?? 0.0) * count;
       }
     }
 
     // Calculate total for namesChecked
     for (var checkedId in namesChecked) {
       final matchingName = names.firstWhere(
-            (name) => name.id == checkedId,
-        orElse: () => Examples(id: -1, media: '', price: '0.0'),
+        (name) => name.id == checkedId,
+        orElse: () => Examples(id: -1, media: '', price: 0),
       );
       if (matchingName.id != -1) {
         final count = productCounts[matchingName.id] ?? 1;
-        total += (double.tryParse(matchingName.price ?? '0.0') ?? 0.0) * count;
+        total +=
+            (double.tryParse(matchingName.price.toString()) ?? 0.0) * count;
       }
     }
 
     // Calculate total for logosChecked
     for (var checkedId in logosChecked) {
       final matchingLogo = logos.firstWhere(
-            (logo) => logo.id == checkedId,
-        orElse: () => Logos(id: -1, image: '', price: '0.0'),
+        (logo) => logo.id == checkedId,
+        orElse: () => Logos(id: -1, image: '', price: 0),
       );
       if (matchingLogo.id != -1) {
         final count = productCounts[matchingLogo.id] ?? 1;
-        total += (double.tryParse(matchingLogo.price ?? '0.0') ?? 0.0) * count;
+        total +=
+            (double.tryParse(matchingLogo.price.toString()) ?? 0.0) * count;
       }
     }
 
     // Calculate total for printChecked
     for (var checkedId in printChecked) {
       final matchingPrint = printTypes.firstWhere(
-            (printType) => printType.id == checkedId,
-        orElse: () => PrintType(id: -1, nameAr: '', price: '0.0'),
+        (printType) => printType.id == checkedId,
+        orElse: () => PrintType(id: -1, nameAr: '', price: 0),
       );
       if (matchingPrint.id != -1) {
         final count = productCounts[matchingPrint.id] ?? 1;
-        total += (double.tryParse(matchingPrint.price ?? '0.0') ?? 0.0) * count;
+        total +=
+            (double.tryParse(matchingPrint.price.toString()) ?? 0.0) * count;
       }
     }
 
     // Calculate total for sizeChecked
     for (var sizeId in sizeChecked) {
       final matchingSize = sizes.firstWhere(
-            (size) => size.id == sizeId,
-        orElse: () => Sizes(id: -1, sizeCode: '', basicPrice: '0.0', discountPrice: '0.0'),
+        (size) => size.id == sizeId,
+        orElse: () =>
+            Sizes(id: -1, sizeCode: '', basicPrice: 0, discountPrice: 0),
       );
       if (matchingSize.id != -1) {
         final count = productCounts[matchingSize.id] ?? 1;
-        final discountPrice = double.tryParse(matchingSize.discountPrice ?? '0.0') ?? 0.0;
-        final basicPrice = double.tryParse(matchingSize.basicPrice ?? '0.0') ?? 0.0;
+        final discountPrice =
+            double.tryParse(matchingSize.discountPrice.toString()) ?? 0.0;
+        final basicPrice =
+            double.tryParse(matchingSize.basicPrice.toString()) ?? 0.0;
         total += (discountPrice > 0 ? discountPrice : basicPrice) * count;
       }
     }
@@ -836,30 +845,116 @@ if(currentStep!=6){
     // Calculate total for materialChecked
     for (var materialId in materialChecked) {
       final matchingMaterial = materials.firstWhere(
-            (material) => material.id == materialId,
-        orElse: () => PrintType(id: -1, nameAr: '', price: '0.0'),
+        (material) => material.id == materialId,
+        orElse: () => PrintType(id: -1, nameAr: '', price: 0),
       );
       if (matchingMaterial.id != -1) {
         final count = productCounts[matchingMaterial.id] ?? 1;
-        total += (double.tryParse(matchingMaterial.price ?? '0.0') ?? 0.0) * count;
+        total +=
+            (double.tryParse(matchingMaterial.price.toString()) ?? 0.0) * count;
       }
     }
 
     // Calculate total for multiChecked
     for (var checkedId in multiChecked) {
       final matchingSizeDirection = sizesAndDirections.firstWhere(
-            (size) => size.id == checkedId,
-        orElse: () => PrintType(id: -1, nameAr: '', price: '0.0'),
+        (size) => size.id == checkedId,
+        orElse: () => PrintType(id: -1, nameAr: '', price: 0),
       );
       if (matchingSizeDirection.id != -1) {
         final count = productCounts[matchingSizeDirection.id] ?? 1;
-        total += (double.tryParse(matchingSizeDirection.price ?? '0.0') ?? 0.0) * count;
+        total +=
+            (double.tryParse(matchingSizeDirection.price.toString()) ?? 0.0) *
+                count;
       }
     }
 
     // Multiply final total with the product count
-    int globalProductCount = productCounts.values.fold(0, (sum, count) => sum + count);
+    int globalProductCount =
+        productCounts.values.fold(0, (sum, count) => sum + count);
     return total * globalProductCount;
   }
 
+  void addCartItem() {
+    emit(AddCartItemLoadingState());
+
+    // Ensure collections are not empty before accessing `.first`
+    if (modelChecked.isEmpty) {
+      emit(AddCartItemErrorState('No model selected'));
+      return;
+    }
+    if (printChecked.isEmpty) {
+      emit(AddCartItemErrorState('No print type selected'));
+      return;
+    }
+    if (materialChecked.isEmpty) {
+      emit(AddCartItemErrorState('No material selected'));
+      return;
+    }
+    if (designColor.isEmpty) {
+      emit(AddCartItemErrorState('No design color selected'));
+      return;
+    }
+    if (sizeChecked.isEmpty) {
+      emit(AddCartItemErrorState('No size selected'));
+      return;
+    }
+    int argbValue = selectedColor.value;
+
+    String hexCode = argbValue.toRadixString(16).padLeft(8, '0');
+
+    hexCode = '$hexCode';
+
+    debugPrint('Hex Code: $hexCode');
+
+    String rgbHexCode = hexCode.substring(2);
+    debugPrint('RGB Hex Code: $rgbHexCode');
+    debugPrint('open model menu id: ${openModelMenuId}');
+    // Create the base FormData map
+    final formDataMap = {
+      'product_id': modelChecked.first,
+      'quantity': getProductCount(modelChecked.first),
+      'example_id': examplesChecked.isEmpty ? null : examplesChecked.first,
+      'name_id': namesChecked.isEmpty ? null : namesChecked.first,
+      'logo_id': logosChecked.isEmpty ? null : logosChecked.first,
+      'image_id': imagesChecked.isEmpty ? null : imagesChecked.first,
+      'image': selectedImage == null ? null : selectedImage!.path,
+      'number': numberController.text.isEmpty ? null : numberController.text,
+      'printtype_id': printChecked.first,
+      'model_id': openModelMenuId,
+      'print_color': '#$rgbHexCode',
+      'material_id': materialChecked.first,
+      'color_id': designColor.first,
+      'size_id': sizeChecked.first,
+      'order_type': 'custom',
+    };
+
+    // Add sizedirection_ids dynamically based on the Set multiChecked
+    int index = 0;
+    for (var item in multiChecked) {
+      formDataMap['sizedirection_ids[$index]'] = item;
+      index++;
+    }
+
+    // Create FormData from the map
+    final formData = FormData.fromMap(formDataMap);
+
+    debugPrint('FormData: ${formData.fields}');
+
+    DioHelper.post(
+      path: EndPoints.carts,
+      withToken: true,
+      body: formData,
+    ).then((value) {
+      debugPrint('Response: ${value.data}');
+      emit(AddCartItemSuccessState());
+    }).catchError((error) {
+      if (error is DioException) {
+        debugPrint('Error Type: ${error.type}');
+        debugPrint('Error Response: ${error.response?.data}');
+        debugPrint('Error Status Code: ${error.response?.statusCode}');
+      }
+      emit(AddCartItemErrorState(error.toString()));
+    });
+  }
 }

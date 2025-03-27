@@ -35,7 +35,7 @@ final void Function()? onTap;
             SizedBox(
               width: 8.w,),
             TextBody14(title),
-            Spacer(),
+            const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
               size: 16.sp,),

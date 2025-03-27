@@ -27,7 +27,8 @@ class CustomTextFormField extends StatelessWidget {
       this.fillColor,
       this.hintColor,
       this.borderRadius,
-      this.maxLines, this.hasShadow});
+      this.maxLines,
+      this.hasShadow});
 
   final String title;
   final Color titleColor;
@@ -48,7 +49,8 @@ class CustomTextFormField extends StatelessWidget {
   final Color? hintColor;
   final double? borderRadius;
   final int? maxLines;
-final bool? hasShadow;
+  final bool? hasShadow;
+
   @override
   Widget build(BuildContext context) {
     // Get the current locale
@@ -79,22 +81,30 @@ final bool? hasShadow;
         ),
       ),
       Container(
-        decoration:hasShadow==true? BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(14.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                offset: Offset(0.0, 3.h),
-                blurRadius: 6.0,
-              ),
-            ]):null,
+
+        decoration: (hasShadow == true)
+            ? BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      offset: Offset(0.0, 3.h),
+                      blurRadius: 6.0,
+                    ),
+                  ])
+            : null,
         child: TextFormField(
-          autofocus: false,
           textInputAction: textInputAction ?? TextInputAction.next,
           onTapOutside: (event) {
             FocusScope.of(context).unfocus();
           },
+
+          style: TextStyle(
+            fontSize: 10.sp,
+            color: AppColors.black,
+            fontFamily: 'Lamar',
+          ),
           maxLines: maxLines ?? 1,
           onFieldSubmitted: onSubmitted,
           cursorColor: AppColors.primaryColor,
@@ -118,6 +128,11 @@ final bool? hasShadow;
             hintStyle: TextStyle(
               fontSize: 10.sp,
               color: hintColor ?? AppColors.grey,
+              fontFamily: 'Lamar',
+            ),
+            errorStyle: TextStyle(
+              fontSize: 8.sp,
+              color: Colors.red,
               fontFamily: 'Lamar',
             ),
             contentPadding:

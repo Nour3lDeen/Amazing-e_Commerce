@@ -13,7 +13,7 @@ class CheckBoxComponent extends StatelessWidget {
       required this.price});
 
   final String title;
-  final String price;
+  final int price;
   final int printId;
   final int currentStep;
 
@@ -37,7 +37,6 @@ class CheckBoxComponent extends StatelessWidget {
         }
       },
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [

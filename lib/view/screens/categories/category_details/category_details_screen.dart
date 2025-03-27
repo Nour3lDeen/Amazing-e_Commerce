@@ -1,5 +1,8 @@
+import 'package:ecommerce/model/sections_model/sections_model.dart';
 import 'package:ecommerce/view/common_components/seasons_drop_down/seasons_drop_down.dart';
 import 'package:ecommerce/view/screens/home/bottom_nav_bar/components/offers_component/product_card.dart';
+import 'package:ecommerce/view_model/data/local/shared_helper.dart';
+import 'package:ecommerce/view_model/data/local/shared_keys.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,9 +19,11 @@ import '../product_details/product_details_screen.dart';
 import 'components/filter_header.dart';
 
 class CategoryDetailsScreen extends StatelessWidget {
-  const CategoryDetailsScreen({super.key, required this.title});
+  const CategoryDetailsScreen(
+      {super.key, required this.title, required this.section});
 
   final String title;
+  final Section section;
 
   /// todo transform the search bar to up
   @override
@@ -49,7 +54,12 @@ class CategoryDetailsScreen extends StatelessWidget {
             }, child: BlocBuilder<ProductsCubit, ProductsState>(
               builder: (context, state) {
                 final cubit = ProductsCubit.get(context);
-
+                List<Products> filteredProducts = cubit.allSectionProducts
+                    .where((e) =>
+                        (e.categoryId == cubit.selectedIndex) &&
+                        (cubit.selectedIndexSeason == -1 ||
+                            e.seasonId == cubit.selectedSeasonId))
+                    .toList();
                 if (state is SectionLoadingState) {
                   return Center(
                       child: LoadingAnimationWidget.inkDrop(
@@ -112,21 +122,21 @@ class CategoryDetailsScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 16.h),
 
-                      // Wrap for displaying product cards
-                      Center(
-                        child: Wrap(
-                          spacing: 16.h,
-                          runSpacing: 16.h,
-                          children: List.generate(
-                            cubit.products.length,
-                            (index) => ProductCard(
-                              title: cubit.products[index].name!,
-                              image: cubit
-                                  .products[index].colors![0].images![0].url!,
-                              fromHome: false,
-                              hasDiscount: false,
-                              productId: cubit.products[index].id!,
-                            ),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: 16.h,
+                        runSpacing: 16.h,
+                        children: List.generate(
+                          filteredProducts.length,
+                          (index) => ProductCard(
+                            product: filteredProducts[index],
+                            title: filteredProducts[index].name!,
+                            image: filteredProducts[index]
+                                .colors![0]
+                                .images![0]
+                                .url!,
+                            fromHome: false,
+                            productId: filteredProducts[index].id!,
                           ),
                         ),
                       ),
@@ -157,19 +167,28 @@ class CategoryDetailsScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16.h),
 
-                    Center(
+                    Visibility(
+                      visible: filteredProducts.isNotEmpty,
+                      replacement: Column(
+                        children: [
+                          SizedBox(height: 200.h),
+                          TextTitle('لا يوجد منتجات', color: AppColors.black),
+                        ],
+                      ),
                       child: Wrap(
                         spacing: 16.h,
                         runSpacing: 16.h,
                         children: List.generate(
-                          cubit.products.length,
+                          filteredProducts.length,
                           (index) => ProductCard(
-                            title: cubit.products[index].name!,
-                            image: cubit
-                                .products[index].colors![0].images![0].url!,
+                            product: filteredProducts[index],
+                            title: filteredProducts[index].name!,
+                            image: filteredProducts[index]
+                                .colors![0]
+                                .images![0]
+                                .url!,
                             fromHome: false,
-                            hasDiscount: false,
-                            productId: cubit.products[index].id!,
+                            productId: filteredProducts[index].id!,
                           ),
                         ),
                       ),
@@ -213,6 +232,8 @@ class CategoryDetailsScreen extends StatelessWidget {
           // Floating Search Bar
           BlocBuilder<ProductsCubit, ProductsState>(
             builder: (context, state) {
+              bool android =
+                  SharedHelper.getData(SharedKeys.platform) == 'android';
               bool isScrolledDown = false;
 
               if (state is ProductsScrollState) {
@@ -221,7 +242,13 @@ class CategoryDetailsScreen extends StatelessWidget {
 
               return Padding(
                 padding: EdgeInsets.only(
-                  top: isScrolledDown ? 0.h : 28.h,
+                  top: isScrolledDown && android
+                      ? 8.h
+                      : isScrolledDown && !android
+                          ? 0.h
+                          : android
+                              ? 40.h
+                              : 28.h,
                   right: isScrolledDown ? 32.w : 16.w,
                   left: isScrolledDown ? 0.w : 16.w,
                 ),
@@ -230,7 +257,7 @@ class CategoryDetailsScreen extends StatelessWidget {
                   child: FloatingSearchBar(
                     transition: CircularFloatingSearchBarTransition(),
                     actions: const [],
-                    backgroundColor: AppColors.white.withAlpha(100), // Adjust transparency
+                    backgroundColor: AppColors.white.withAlpha(100),
                     borderRadius: BorderRadius.circular(24.r),
                     hint: 'بحث عن منتج',
                     queryStyle: TextStyle(
@@ -244,7 +271,6 @@ class CategoryDetailsScreen extends StatelessWidget {
                       fontFamily: 'Lamar',
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    transitionDuration: const Duration(milliseconds: 500),
                     transitionCurve: Curves.easeInOut,
                     physics: const BouncingScrollPhysics(),
                     width: isScrolledDown ? 290.w : 500.w,
@@ -252,7 +278,7 @@ class CategoryDetailsScreen extends StatelessWidget {
                     backdropColor: Colors.transparent,
                     debounceDelay: const Duration(milliseconds: 200),
                     onQueryChanged: (query) {
-                      ProductsCubit.get(context).updateSearchQuery(query); // Update the cubit's search query
+                      ProductsCubit.get(context).updateSearchQuery(query);
                       debugPrint('Search Query: $query');
                     },
                     leadingActions: [
@@ -267,61 +293,78 @@ class CategoryDetailsScreen extends StatelessWidget {
                     builder: (context, transition) {
                       final cubit = ProductsCubit.get(context);
 
-                      // Filter products based on the current search query
                       final filteredProducts = cubit.searchQuery.isNotEmpty
                           ? cubit.allProducts
-                          .where((product) => product.name!
-                          .toLowerCase()
-                          .contains(cubit.searchQuery.toLowerCase()))
-                          .toList()
+                              .where((product) =>
+                                  (product.name!.toLowerCase().contains(
+                                      cubit.searchQuery.toLowerCase())) &&
+                                  product.sectionId == section.id)
+                              .toList()
                           : [];
 
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(8.r),
                         child: Material(
-                          color: Colors.white.withAlpha(240), // Slight transparency
-                          elevation: 4.0,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: filteredProducts.isEmpty
-                                ? [
-                              Padding(
-                                padding: EdgeInsets.all(16.sp),
-                                child: TextBody12(
-                                  cubit.searchQuery.isEmpty
-                                      ? 'البحث عن منتج'
-                                      : 'لا يوجد منتجات بحث مطابقة',
-                                  color: AppColors.grey,
-                                ),
-                              ),
-                            ]
-                                : List.generate(
-                              filteredProducts.length,
-                                  (index) => ListTile(
-                                title: TextBody14(filteredProducts[index].name!),
-                                onTap: () {
-                                  cubit.pushToStack(
-                                    filteredProducts[index].colors![0].images![0].url!,
-                                  );
-                                  Navigation.push(
-                                    context,
-                                    ProductDetailsScreen(
-                                      productId: filteredProducts[index].id!,
-                                      title: filteredProducts[index].name!,
-                                      product: filteredProducts[index],
+                            color: Colors.white.withAlpha(240),
+                            // Slight transparency
+                            elevation: 4.0,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: filteredProducts.isEmpty
+                                  ? [
+                                      Padding(
+                                        padding: EdgeInsets.all(16.sp),
+                                        child: TextBody12(
+                                          cubit.searchQuery.isEmpty
+                                              ? 'البحث عن منتج'
+                                              : 'لا يوجد منتجات بحث مطابقة',
+                                          color: AppColors.grey,
+                                        ),
+                                      ),
+                                    ]
+                                  : List.generate(
+                                      filteredProducts.length,
+                                      (index) => ListTile(
+                                        title: TextBody14(
+                                            filteredProducts[index].name!),
+                                        onTap: () {
+                                          debugPrint(
+                                              'Product ID: ${filteredProducts[index].id}');
+                                          cubit.showProduct(
+                                              filteredProducts[index].id);
+                                          if (filteredProducts[index].sizes !=
+                                                  null &&
+                                              filteredProducts[index]
+                                                  .sizes
+                                                  .isNotEmpty) {
+                                            cubit.sizes =
+                                                filteredProducts[index].sizes;
+                                            cubit.initializeSelectedSize();
+                                          }
+                                          cubit.initializeSelectedSize();
+                                          cubit.sizes = [];
+                                          cubit.pushToStack(
+                                              filteredProducts[index]
+                                                  .colors![0]
+                                                  .images![0]
+                                                  .url!);
+                                          Navigation.push(
+                                            context,
+                                            ProductDetailsScreen(
+                                              productId:
+                                                  filteredProducts[index].id!,
+                                              title:
+                                                  filteredProducts[index].name!,
+                                              product: filteredProducts[index],
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ),
-                                  );
-                                  debugPrint('Product: ${filteredProducts[index].name}');
-                                },
-                              ),
-                            ),
-                          )
-
-                        ),
+                            )),
                       );
                     },
-                  )
-                  ,
+                  ),
                 ),
               );
             },
@@ -342,7 +385,6 @@ class CategoryDetailsScreen extends StatelessWidget {
                   left: 16.w,
                   right: 16.w,
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
@@ -353,7 +395,7 @@ class CategoryDetailsScreen extends StatelessWidget {
                           width: 32.w,
                         ),
                       ),
-                      SizedBox.shrink(),
+                      const SizedBox.shrink(),
                       Hero(
                         tag: title,
                         child: Material(
@@ -365,7 +407,7 @@ class CategoryDetailsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SeasonsDropDown()
+                      const SeasonsDropDown()
                     ],
                   ),
                 );

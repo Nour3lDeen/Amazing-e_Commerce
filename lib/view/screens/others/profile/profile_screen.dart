@@ -25,8 +25,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
-        // final authCubit = AuthCubit.get(context);
-        bool isLoggedIn = SharedHelper.getData(SharedKeys.token) != null;
         return Scaffold(
             body: Stack(
           children: [
@@ -49,10 +47,8 @@ class ProfileScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                 )),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
@@ -93,43 +89,71 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     Hero(
                       tag: 'avatar',
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.secondaryColor,
-                            width: 2.w,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              offset: Offset(0.0, 3.h),
-                              blurRadius: 6.0,
-                            ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          radius: 35.r,
-                          child: isLoggedIn
-                              ? ClipOval(
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        SharedHelper.getData(SharedKeys.avatar)
-                                            .replaceFirst(
-                                                'http://', 'https://'),
-                                    height: 70.h,
-                                    width: 70.w,
-                                    fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(12.r)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    child: AuthCubit.get(context).selectedImage == null
+                                        ? CachedNetworkImage(
+                                      imageUrl: SharedHelper.getData(
+                                          SharedKeys.avatar)
+                                          .replaceFirst(
+                                          'http://', 'https://'),
+                                      fit: BoxFit.cover,
+                                    )
+                                        : Image.file(
+                                      AuthCubit.get(context).selectedImage!,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                )
-                              : ClipOval(
-                                  child: Image.asset(
-                                  AppAssets.avatar,
+                                );
+                              });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.secondaryColor,
+                              width: 2.w,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                offset: Offset(0.0, 3.h),
+                                blurRadius: 6.0,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            radius: 35.r,
+                            child: AuthCubit.get(context).selectedImage == null
+                                ? ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: SharedHelper.getData(
+                                    SharedKeys.avatar)
+                                    .replaceFirst('http://', 'https://'),
+                                height: 70.h,
+                                width: 70.w,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                                : ClipOval(
+                                child: Image.file(
+                                  AuthCubit.get(context).selectedImage!,
                                   height: 70.h,
                                   width: 70.w,
                                   fit: BoxFit.cover,
                                 )),
+                          ),
                         ),
                       ),
                     ),
@@ -233,14 +257,13 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           CustomTextFormField(
                             title: LocaleKeys.email.tr(),
-                            hint: 'noor@1.com',
+                            hint: SharedHelper.getData(SharedKeys.email),
                             icon: AppAssets.email,
                             titleColor: AppColors.black,
                             isPassword: false,
                             readOnly: true,
                             borderRadius: 14.r,
-                            controller:
-                                AuthCubit.get(context).registerEmailController,
+                            controller: TextEditingController(),
                             onIconTap: () {},
                             fillColor: AppColors.othersColor,
                             hintColor: AppColors.black,
@@ -257,14 +280,13 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           CustomTextFormField(
                             title: LocaleKeys.phoneNumber.tr(),
-                            hint: '0123456123',
+                            hint: SharedHelper.getData(SharedKeys.phone),
                             icon: AppAssets.call,
                             titleColor: AppColors.black,
                             isPassword: false,
                             fillColor: AppColors.othersColor,
                             hintColor: AppColors.black,
-                            controller:
-                                AuthCubit.get(context).registerNumberController,
+                            controller: TextEditingController(),
                             onIconTap: () {},
                             readOnly: true,
                             borderRadius: 14.r,
@@ -281,81 +303,93 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              Expanded(
-                                child: BlocBuilder<AuthCubit, AuthState>(
-                                  builder: (context, state) {
-                                    final cubit = AuthCubit.get(context);
-                                    return CustomTextFormField(
-                                      readOnly: true,
-                                      title: LocaleKeys.gender.tr(),
-                                      icon: AppAssets.gender,
-                                      titleColor: AppColors.black,
-                                      hint: 'ذكر',
-                                      fillColor: AppColors.othersColor,
-                                      hintColor: AppColors.black,
-                                      borderRadius: 14.r,
-                                      validator: (value) {
-                                        if ((value ?? '').trim().isEmpty) {
-                                          return LocaleKeys.genderError.tr();
-                                        }
-                                        return null;
-                                      },
-                                      isPassword: false,
-                                      controller:
-                                          cubit.registerGenderController,
-                                      onIconTap: () {},
-                                      suffixIcon: const Icon(Icons.email),
-                                      obscureText: false,
-                                      textInputAction: TextInputAction.next,
-                                      keyboardType: TextInputType.emailAddress,
-                                    );
-                                  },
+                              Visibility(
+                                visible:
+                                    SharedHelper.getData(SharedKeys.gender) !=
+                                        null,
+                                child: Expanded(
+                                  child: CustomTextFormField(
+                                    readOnly: true,
+                                    title: LocaleKeys.gender.tr(),
+                                    icon: AppAssets.gender,
+                                    titleColor: AppColors.black,
+                                    hint: SharedHelper.getData(
+                                            SharedKeys.gender) ??
+                                        '',
+                                    fillColor: AppColors.othersColor,
+                                    hintColor: AppColors.black,
+                                    borderRadius: 14.r,
+                                    validator: (value) {
+                                      if ((value ?? '').trim().isEmpty) {
+                                        return LocaleKeys.genderError.tr();
+                                      }
+                                      return null;
+                                    },
+                                    isPassword: false,
+                                    controller: TextEditingController(),
+                                    onIconTap: () {},
+                                    suffixIcon: const Icon(Icons.email),
+                                    obscureText: false,
+                                    textInputAction: TextInputAction.next,
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
                                 ),
                               ),
-                              SizedBox(width: 16.w),
-                              Expanded(
-                                child: CustomTextFormField(
-                                  borderRadius: 14.r,
+                              Visibility(
+                                  visible:
+                                      SharedHelper.getData(SharedKeys.gender) !=
+                                              null &&
+                                          SharedHelper.getData(
+                                                  SharedKeys.birthDate) !=
+                                              null,
+                                  child: SizedBox(width: 16.w)),
+                              Visibility(
+                                visible: SharedHelper.getData(
+                                        SharedKeys.birthDate) !=
+                                    null,
+                                child: Expanded(
+                                  child: CustomTextFormField(
+                                    borderRadius: 14.r,
+                                    readOnly: true,
+                                    fillColor: AppColors.othersColor,
+                                    hintColor: AppColors.black,
+                                    title: LocaleKeys.birthDate.tr(),
+                                    hint: SharedHelper.getData(
+                                            SharedKeys.birthDate) ??
+                                        '',
+                                    icon: AppAssets.date,
+                                    titleColor: AppColors.black,
+                                    isPassword: false,
+                                    controller: TextEditingController(),
+                                    // Use a dedicated controller
 
-                                  readOnly: true,
-                                  fillColor: AppColors.othersColor,
-                                  hintColor: AppColors.black,
-                                  // Makes the field read-only
-                                  title: LocaleKeys.birthDate.tr(),
-                                  hint: '12/12/2024',
-                                  icon: AppAssets.date,
-                                  titleColor: AppColors.black,
-                                  isPassword: false,
-                                  controller: AuthCubit.get(context)
-                                      .registerDateController,
-                                  // Use a dedicated controller
-
-                                  onIconTap: () {},
-                                  suffixIcon: const Icon(Icons.calendar_today),
-                                  // Calendar icon
-                                  obscureText: false,
-                                  validator: (value) {
-                                    if ((value ?? '').trim().isEmpty) {
-                                      return LocaleKeys.birthDateError.tr();
-                                    }
-                                    return null;
-                                  },
+                                    onIconTap: () {},
+                                    suffixIcon:
+                                        const Icon(Icons.calendar_today),
+                                    // Calendar icon
+                                    obscureText: false,
+                                    validator: (value) {
+                                      if ((value ?? '').trim().isEmpty) {
+                                        return LocaleKeys.birthDateError.tr();
+                                      }
+                                      return null;
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Transform.translate(
                             offset: Offset(0, 10.h),
                             child: Center(
                               child: GestureDetector(
                                 onTap: () {
                                   showModalBottomSheet(
-                                      isDismissible: true,
                                       backgroundColor: Colors.transparent,
                                       context: context,
                                       builder: (context) {
-                                        return ChangePassword();
+                                        return const ChangePassword();
                                       });
                                 },
                                 child: Column(
@@ -381,7 +415,6 @@ class ProfileScreen extends StatelessWidget {
                                       thickness: 1.sp,
                                       endIndent: 80.w,
                                       indent: 80.w,
-
                                     )
                                   ],
                                 ),
@@ -390,7 +423,29 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           GestureDetector(
                               onTap: () {
-                                Navigation.push(context, UpdateProfileScreen());
+                                AuthCubit.get(context).selectedImage = null;
+                                AuthCubit.get(context)
+                                        .updateFirstNameController
+                                        .text =
+                                    SharedHelper.getData(SharedKeys.firstName);
+                                AuthCubit.get(context)
+                                        .updateSecondNameController
+                                        .text =
+                                    SharedHelper.getData(SharedKeys.secondName);
+                                AuthCubit.get(context)
+                                        .updateEmailController
+                                        .text =
+                                    SharedHelper.getData(SharedKeys.email);
+                                AuthCubit.get(context)
+                                        .updatePhoneController
+                                        .text =
+                                    SharedHelper.getData(SharedKeys.phone);
+                                if(SharedHelper.getData(SharedKeys.gender) != null)
+                                  AuthCubit.get(context).selectedGender = SharedHelper.getData(SharedKeys.gender);
+                                if(SharedHelper.getData(SharedKeys.birthDate) != null)
+                                  AuthCubit.get(context).updateDateController.text = SharedHelper.getData(SharedKeys.birthDate);
+                                Navigation.push(
+                                    context, const UpdateProfileScreen());
                               },
                               child: Container(
                                   alignment: Alignment.center,

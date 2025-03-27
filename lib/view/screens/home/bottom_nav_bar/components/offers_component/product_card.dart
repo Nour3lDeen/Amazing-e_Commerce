@@ -21,15 +21,15 @@ import '../../../../categories/product_details/product_details_screen.dart';
 class ProductCard extends StatelessWidget {
   const ProductCard({
     super.key,
+    required this.product,
     required this.productId,
-    required this.hasDiscount,
     required this.title,
     required this.image,
     required this.fromHome,
   });
 
+  final Products product;
   final int productId;
-  final bool hasDiscount;
   final String title;
   final String image;
   final bool fromHome;
@@ -38,33 +38,36 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
+        bool hasDiscount = product.sizes?.first.discountRate! != 0;
         final cubit = ProductsCubit.get(context);
         // Find the product once and reuse it
 
-        final product = cubit.products.firstWhere(
+        /* final product = cubit.products.firstWhere(
           (product) => product.id == productId,
           orElse: () => Products(id: productId),
         );
-        String? imageUrl;
+        //String? imageUrl;*/
         final sizes = product.sizes;
-        final colors = product.colors;
-        if (!fromHome) {
+        final colors = product.colors ?? [];
+        /*if (!fromHome) {
           imageUrl = colors![0].images!.isNotEmpty == true
               ? colors[0].images![0].url
               : '';
-        }
+        }*/
 
         return InkWell(
           onTap: () {
             if (fromHome == false) {
               {
                 debugPrint('Product ID: $productId');
+                debugPrint('Product category ID: ${product.categoryId}');
                 cubit.showProduct(productId);
                 if (sizes != null && sizes.isNotEmpty) {
                   cubit.sizes = sizes;
                   cubit.initializeSelectedSize();
                 }
-
+                cubit.initializeSelectedSize();
+                cubit.sizes = [];
                 cubit.pushToStack(image);
                 Navigation.push(
                   context,
@@ -85,7 +88,11 @@ class ProductCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8.r),
               image: DecorationImage(
                 image: CachedNetworkImageProvider(
-                  fromHome ? image : imageUrl!,
+                  fromHome
+                      ? image.replaceFirst('http://', 'https://')
+                      : product.colors?[0].images?[0].url ??
+                          'https://img.freepik.com/photos-gratuite/iguane-jaune-gros-plan-visage-iguane-albinos-gros-plan_488145-3482.jpg?t=st=1742817188~exp=1742820788~hmac=7c1d0ef9f488f3613d3b8042e3914692fcaf17b5c84b33c95cceb96a1a3e737a&w=996'
+                              .replaceFirst('http://', 'https://'),
                 ),
                 fit: BoxFit.cover,
               ),
@@ -127,7 +134,6 @@ class ProductCard extends StatelessWidget {
                             child: Column(
                               spacing: 2.h,
                               mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TextBody12(
@@ -136,48 +142,52 @@ class ProductCard extends StatelessWidget {
                                   fontSize: 12.sp,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                Row(
-                                  spacing: 2.w,
-                                  children: [
-                                    TextDescription(
-                                      'الألوان: ',
-                                      textAlign: TextAlign.center,
-                                      fontSize: 10.sp,
-                                    ),
-                                    const Spacer(),
-                                    Row(
-                                      spacing: 4.w,
-                                      children: List.generate(
-                                        fromHome == true
-                                            ? 3
-                                            : colors?.length ?? 3,
-                                        (index) {
-                                          return Container(
-                                            width: 12.w,
-                                            height: 12.h,
-                                            decoration: BoxDecoration(
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.grey
-                                                      .withValues(alpha: 0.5),
-                                                  spreadRadius: 2,
-                                                  blurRadius: 5,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                              color: fromHome == true
-                                                  ? HexColor('#EFEFEF')
-                                                  : HexColor(colors?[index]
-                                                          .colorCode ??
-                                                      ''),
-                                              shape: BoxShape.circle,
-                                            ),
-                                          );
-                                        },
+                                Wrap(children: [
+                                  Row(
+                                    spacing: 2.w,
+                                    children: [
+                                      TextDescription(
+                                        'الألوان: ',
+                                        textAlign: TextAlign.center,
+                                        fontSize: 10.sp,
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                      const Spacer(),
+                                      Visibility(
+                                          visible:
+                                              !fromHome && colors.length > 5,
+                                          child: TextDescription(
+                                            '${colors.length - 5}+',
+                                          )),
+                                      Row(
+                                        spacing: 4.w,
+                                        children: List.generate(
+                                          colors.length > 5 ? 5 : colors.length,
+                                          (index) {
+                                            return Container(
+                                              width: 12.w,
+                                              height: 12.h,
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey
+                                                        .withValues(alpha: 0.5),
+                                                    spreadRadius: 2,
+                                                    blurRadius: 5,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                                color: HexColor(
+                                                    colors[index].colorCode ??
+                                                        ''),
+                                                shape: BoxShape.circle,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ]),
                                 Row(
                                   children: [
                                     TextBody14('السعر:',
@@ -185,14 +195,9 @@ class ProductCard extends StatelessWidget {
                                         fontSize: 10.sp),
                                     const Spacer(),
                                     Visibility(
-                                      visible: /*sizes != null &&
-                                          sizes.isNotEmpty &&
-                                          sizes[0].discountPrice != '0'*/
-                                          hasDiscount,
+                                      visible: hasDiscount,
                                       child: Text(
-                                        hasDiscount
-                                            ? '30 ر.س'
-                                            : '${sizes?[0].basicPrice} ر.س',
+                                        '${sizes?[0].basicPrice} ر.س',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily: 'Lamar',
@@ -209,11 +214,11 @@ class ProductCard extends StatelessWidget {
                                     ),
                                     SizedBox(width: 4.w),
                                     TextBody14(
-                                      fromHome
-                                          ? '20 ر.س'
+                                      hasDiscount
+                                          ? '${sizes?[0].discountPrice} ر.س'
                                           : sizes != null &&
                                                   sizes.isNotEmpty &&
-                                                  sizes[0].discountPrice != '0'
+                                                  sizes[0].discountPrice! < 0
                                               ? '${sizes[0].discountPrice} ر.س'
                                               : '${sizes?[0].basicPrice} ر.س',
                                       textAlign: TextAlign.center,
@@ -230,13 +235,9 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 BlocBuilder<ProductsCubit, ProductsState>(
-                  buildWhen: (previous, current) =>
-                      current is ChangeFavoriteState &&
-                      current.productId == productId,
                   builder: (context, state) {
                     final cubit = ProductsCubit.get(context);
                     final isFavorite = cubit.isProductFavorite(productId);
-
                     return GestureDetector(
                       onTap: () {
                         cubit.toggleFavorite(productId, context);
@@ -252,14 +253,11 @@ class ProductCard extends StatelessWidget {
                             } else {
                               showDialog(
                                 context: context,
-                                barrierDismissible: true,
                                 builder: (ctx) {
-                                  return NotLoggedComponent();
+                                  return const NotLoggedComponent();
                                 },
                               );
                             }
-
-
                           },
                           child: AnimatedScale(
                             scale: isFavorite ? 1.2 : 1.0,
@@ -299,7 +297,7 @@ class ProductCard extends StatelessWidget {
                 PositionedDirectional(
                   top: -15.h,
                   start: -35.w,
-                  child: _buildDiscountBadge(context),
+                  child: _buildDiscountBadge(context, sizes: sizes),
                 ),
               ],
             ),
@@ -310,7 +308,8 @@ class ProductCard extends StatelessWidget {
   }
 
   /// Discount Badge Widget
-  Widget _buildDiscountBadge(BuildContext context) {
+  Widget _buildDiscountBadge(BuildContext context,
+      {required List<Sizes>? sizes}) {
     return Visibility(
       visible: /*(ProductsCubit.get(context)
               .products
@@ -319,7 +318,8 @@ class ProductCard extends StatelessWidget {
               .sizes![0]
               .discountPrice! !=
           '0')||*/
-          hasDiscount,
+          //hasDiscount,
+          product.sizes?.first.discountRate! != 0,
       child: Container(
         width: 120.w,
         height: 60.h,
@@ -328,16 +328,21 @@ class ProductCard extends StatelessWidget {
             image: Image.asset(AppAssets.discount).image,
             colorFilter: ColorFilter.mode(
                 Colors.red.withValues(alpha: 0.8), BlendMode.srcIn),
-            isAntiAlias: false,
           ),
         ),
         child: Center(
           child: Transform.rotate(
             angle: 45 * (3.141592653589793 / 180),
             child: TextTitle(
-              /* 'خصم ${ProductsCubit.get(context).products.where((x) => x.id == productId).first.sizes![0].discountRate}%'*/
-              'خصم 20%',
+              'خصم ${sizes?[0].discountRate}%',
               color: AppColors.white,
+              shadows: [
+                BoxShadow(
+                  color: AppColors.black.withValues(alpha: 0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                )
+              ],
               fontSize: 9.sp,
             ),
           ),

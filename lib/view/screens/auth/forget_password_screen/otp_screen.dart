@@ -47,12 +47,10 @@ class OtpScreen extends StatelessWidget {
           child: Directionality(
             textDirection: TextDirection.rtl,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SvgPicture.asset(
-                  AppAssets.logo,
-                  height: 30.h,
+                  AppAssets.blackLogo,
+                  height: 40.h,
                   colorFilter:
                       const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                 ),
@@ -60,7 +58,6 @@ class OtpScreen extends StatelessWidget {
                   height: 8.h,
                 ),
                 Align(
-                  alignment: Alignment.center,
                   child: TextBody12(
                     'نسيت كلمة المرور',
                     textAlign: TextAlign.center,
@@ -138,7 +135,6 @@ class OtpScreen extends StatelessWidget {
                                   fillColor: AppColors.white.withValues(alpha:0.65),
                                   filled: true,
                                   cursorColor: AppColors.secondaryColor,
-                                  keyboardType: TextInputType.number,
                                   fieldWidth: 40.w,
                                   fieldHeight: 40.h,
                                   onSubmit: (String verificationCode) {
@@ -147,7 +143,7 @@ class OtpScreen extends StatelessWidget {
                                     debugPrint('OTP1: ${AuthCubit.get(context).otpController.text}');
                                     AuthCubit.get(context).clearData();
 
-                                    debugPrint('${AuthCubit.get(context).showPassword}');
+                                   // debugPrint('${AuthCubit.get(context).showPassword}');
                                     Navigation.pushReplacement(context, const CreateNewPasswordScreen());
                                     /// todo request code
                                   },
@@ -172,7 +168,6 @@ class OtpScreen extends StatelessWidget {
                                      padding: EdgeInsets.symmetric(horizontal: 4.w),
                                      child: Row(
                                        mainAxisAlignment: MainAxisAlignment.center,
-                                       crossAxisAlignment: CrossAxisAlignment.center,
                                        mainAxisSize: MainAxisSize.min,
                                        children: [
                                          TextTitle('تعديل البريد الإلكتروني',color: AppColors.primaryColor,),

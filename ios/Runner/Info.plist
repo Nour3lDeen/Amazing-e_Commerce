@@ -33,6 +33,8 @@
 	<array>
 		<string>http</string>
 		<string>https</string>
+		<string>sms</string>
+        <string>tel</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -66,5 +68,9 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+    <string>We need access to check your internet connectivity</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need access to check your internet connectivity</string>
 </dict>
 </plist>

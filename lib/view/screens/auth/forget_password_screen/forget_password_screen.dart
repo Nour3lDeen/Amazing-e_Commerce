@@ -50,12 +50,10 @@ class ForgetPasswordScreen extends StatelessWidget {
           child: Directionality(
             textDirection: TextDirection.rtl,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SvgPicture.asset(
-                  AppAssets.logo,
-                  height: 30.h,
+                  AppAssets.blackLogo,
+                  height: 40.h,
                   colorFilter:
                       const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                 ),
@@ -63,7 +61,6 @@ class ForgetPasswordScreen extends StatelessWidget {
                   height: 8.h,
                 ),
                 Align(
-                  alignment: Alignment.center,
                   child: TextBody12(
                     'نسيت كلمة المرور',
                     textAlign: TextAlign.center,
@@ -169,8 +166,6 @@ class ForgetPasswordScreen extends StatelessWidget {
                                           EdgeInsets.symmetric(horizontal: 16.w),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
                                         children: [
                                           TextTitle(
                                             'إرسال الرمز',

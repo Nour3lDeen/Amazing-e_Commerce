@@ -52,19 +52,14 @@ class ImagesPreviewComponent extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
 
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       images.length,
                           (index) {
-                        final imageUrl = images[index].url.toString();
-
-                        // Check if the current image is the top of the stack
+                        final imageUrl = images[index].url.toString().replaceFirst('http://', 'https://');
                         final isSelected = cubit.peekStack() == imageUrl;
-
                         return InkWell(
                           onTap: () {
-                            // Push the selected image to the stack
                             cubit.popFromStack();
                             cubit.pushToStack(imageUrl);
                           },
@@ -77,7 +72,6 @@ class ImagesPreviewComponent extends StatelessWidget {
                                 horizontal: 4.w,
                               ),
                               decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
                                 borderRadius: BorderRadius.circular(8.r),
 
 

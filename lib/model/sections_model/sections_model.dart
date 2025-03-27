@@ -8,11 +8,11 @@ class Section {
 
   Section(
       {this.id,
-        this.name,
-        this.description,
-        this.status,
-        this.media,
-        this.categories});
+      this.name,
+      this.description,
+      this.status,
+      this.media,
+      this.categories});
 
   Section.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -20,11 +20,12 @@ class Section {
     description = json['description'];
     status = json['status'];
     media = json['media'];
-    if (json['categories'] != null) {
-      categories = <Categories>[];
-      json['categories'].forEach((v) {
-        categories!.add(Categories.fromJson(v));
-      });
+    if (json['categories'] != null && json['categories'] is List) {
+      categories = List<Categories>.from(
+        json['categories'].map((x) => Categories.fromJson(x)),
+      );
+    } else {
+      categories = [];
     }
   }
 
@@ -40,6 +41,7 @@ class Section {
     }
     return data;
   }
+
   @override
   String toString() {
     return 'Section{id: $id, name: $name, description: $description, status: $status, media: $media, categories: $categories}';
@@ -48,7 +50,7 @@ class Section {
 
 class Categories {
   int? id;
-  String? sectionId;
+  int? sectionId;
   String? name;
   String? slug;
   String? description;
@@ -58,13 +60,13 @@ class Categories {
 
   Categories(
       {this.id,
-        this.sectionId,
-        this.name,
-        this.slug,
-        this.description,
-        this.status,
-        this.media,
-        this.products});
+      this.sectionId,
+      this.name,
+      this.slug,
+      this.description,
+      this.status,
+      this.media,
+      this.products});
 
   Categories.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -96,6 +98,7 @@ class Categories {
     }
     return data;
   }
+
   @override
   String toString() {
     return 'Categories{id: $id, sectionId: $sectionId, name: $name, slug: $slug, description: $description, status: $status, media: $media, products: $products}';
@@ -108,33 +111,43 @@ class Products {
   String? categoryName;
   String? categorySlug;
   String? brandName;
+  int? brandId;
+  int? sectionId;
+  String? seasonName;
+  int? seasonId;
   String? name;
   String? productCode;
   String? description;
-  String? stock;
+  int? stock;
   String? status;
   String? video;
   String? createdAt;
   String? updatedAt;
   List<Sizes>? sizes;
   List<ProductsColors>? colors;
+  num? rate;
 
   Products(
       {this.id,
-        this.categoryId,
-        this.categoryName,
-        this.categorySlug,
-        this.brandName,
-        this.name,
-        this.productCode,
-        this.description,
-        this.stock,
-        this.status,
-        this.video,
-        this.createdAt,
-        this.updatedAt,
-        this.sizes,
-        this.colors});
+      this.categoryId,
+      this.categoryName,
+      this.categorySlug,
+      this.brandName,
+      this.brandId,
+      this.sectionId,
+      this.seasonName,
+      this.seasonId,
+      this.name,
+      this.productCode,
+      this.description,
+      this.stock,
+      this.status,
+      this.video,
+      this.createdAt,
+      this.updatedAt,
+      this.sizes,
+      this.colors,
+      this.rate});
 
   Products.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -142,6 +155,10 @@ class Products {
     categoryName = json['category_name'];
     categorySlug = json['category_slug'];
     brandName = json['brand_name'];
+    brandId = json['brand_id'];
+    sectionId = json['section_id'];
+    seasonName = json['season_name'];
+    seasonId = json['season_id'];
     name = json['name'];
     productCode = json['product_code'];
     description = json['description'];
@@ -162,6 +179,7 @@ class Products {
         colors!.add(ProductsColors.fromJson(v));
       });
     }
+    rate = json['ratesAvg'];
   }
 
   Map<String, dynamic> toJson() {
@@ -171,6 +189,10 @@ class Products {
     data['category_name'] = categoryName;
     data['category_slug'] = categorySlug;
     data['brand_name'] = brandName;
+    data['brand_id'] = brandId;
+    data['section_id'] = this.sectionId;
+    data['season_name'] = this.seasonName;
+    data['season_id'] = this.seasonId;
     data['name'] = name;
     data['product_code'] = productCode;
     data['description'] = description;
@@ -185,29 +207,39 @@ class Products {
     if (colors != null) {
       data['colors'] = colors!.map((v) => v.toJson()).toList();
     }
+    data['ratesAvg'] = rate;
     return data;
   }
- @override
-  String toString() {
-   return 'Products{id: $id, categoryId: $categoryId, categoryName: $categoryName, categorySlug: $categorySlug, brandName: $brandName, name: $name}';
 
- }
+  @override
+  String toString() {
+    return 'Products{id: $id, categoryId: $categoryId, categoryName: $categoryName, categorySlug: $categorySlug, brandName: $brandName, brandId: $brandId, sectionId: $sectionId, seasonName: $seasonName, name: $name}';
+  }
 }
 
 class Sizes {
   int? id;
   String? sizeCode;
-  String? basicPrice;
-  String? discountRate;
-  String? discountPrice;
+  int? basicPrice;
+  int? discountRate;
+  int? discountPrice;
 
-  Sizes(
-      {this.id,
-        this.sizeCode,
-        this.basicPrice,
-        this.discountRate,
-        this.discountPrice,
-        });
+  Sizes({
+    this.id,
+    this.sizeCode,
+    this.basicPrice,
+    this.discountRate,
+    this.discountPrice,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Sizes && other.sizeCode == sizeCode;
+  }
+
+  @override
+  int get hashCode => sizeCode.hashCode;
 
   Sizes.fromJson(Map<String, dynamic> json) {
     id = json['id'];

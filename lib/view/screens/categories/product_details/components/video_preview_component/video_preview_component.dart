@@ -50,9 +50,6 @@ class _VideoPreviewComponentState extends State<VideoPreviewComponent> {
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         aspectRatio: _videoController!.value.aspectRatio,
-
-        autoPlay: false,
-        looping: false,
         materialProgressColors: ChewieProgressColors(
           playedColor: AppColors.primaryColor,
           handleColor: AppColors.primaryColor,

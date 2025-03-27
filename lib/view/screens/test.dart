@@ -58,7 +58,6 @@ class ScrollScreen extends StatelessWidget {
                   fontFamily: 'Lamar',
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                transitionDuration: const Duration(milliseconds: 500),
                 transitionCurve: Curves.easeInOut,
                 physics: const BouncingScrollPhysics(),
                 //width:500.w,

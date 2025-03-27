@@ -56,7 +56,7 @@ class ContactUs extends StatelessWidget {
               SizedBox(
                 height: 8.h,
               ),
-              TextBody14('يسعدنا تقديم المساعدة لكم في أي وقت.'),
+              const TextBody14('يسعدنا تقديم المساعدة لكم في أي وقت.'),
               SizedBox(
                 height: 8.h,
               ),
@@ -65,8 +65,7 @@ class ContactUs extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   showDialog(context: context,
-                      useSafeArea: true,
-                      builder: (context) => Chat());
+                      builder: (context) => const Chat());
                 },
                 child: Container(
                   width: double.infinity,
@@ -84,7 +83,6 @@ class ContactUs extends StatelessWidget {
                         HexColor('#208B78'),
                       ])),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: 6.w,
                     children: [

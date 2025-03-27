@@ -48,12 +48,10 @@ class CreateNewPasswordScreen extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   SvgPicture.asset(
-                    AppAssets.logo,
-                    height: 30.h,
+                    AppAssets.blackLogo,
+                    height: 40.h,
                     colorFilter:
                         const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                   ),
@@ -61,7 +59,6 @@ class CreateNewPasswordScreen extends StatelessWidget {
                     height: 8.h,
                   ),
                   Align(
-                    alignment: Alignment.center,
                     child: TextBody12(
                       'إنشاء كلمة مرور جديدة',
                       textAlign: TextAlign.center,
@@ -133,13 +130,16 @@ class CreateNewPasswordScreen extends StatelessWidget {
                                         },
                                         textInputAction: TextInputAction.done,
                                         obscureText:
-                                            AuthCubit.get(context).showPassword,
+                                            AuthCubit.get(context).passwordVisibility['newPassword']!,
                                         controller: AuthCubit.get(context)
                                             .createNewPasswordController,
-                                        onIconTap: AuthCubit.get(context)
-                                            .changePasswordVisibility,
+                                        onIconTap: () {
+                                          AuthCubit
+                                              .get(context)
+                                              .changePasswordVisibility('newPassword');
+                                        },
                                         suffixIcon:
-                                            !AuthCubit.get(context).showPassword
+                                            !AuthCubit.get(context).passwordVisibility['newPassword']!
                                                 ? Icon(
                                                     Icons.visibility,
                                                     color: AppColors.grey,
@@ -171,13 +171,16 @@ class CreateNewPasswordScreen extends StatelessWidget {
                                         },
                                         textInputAction: TextInputAction.done,
                                         obscureText:
-                                            AuthCubit.get(context).showPassword,
+                                            AuthCubit.get(context).passwordVisibility['confirmPassword']!,
                                         controller: AuthCubit.get(context)
                                             .confirmPasswordController,
-                                        onIconTap: AuthCubit.get(context)
-                                            .changePasswordVisibility,
+                                        onIconTap:() {
+                                          AuthCubit
+                                              .get(context)
+                                              .changePasswordVisibility('confirmPassword');
+                                        },
                                         suffixIcon:
-                                            !AuthCubit.get(context).showPassword
+                                            !AuthCubit.get(context).passwordVisibility['confirmPassword']!
                                                 ? Icon(
                                                     Icons.visibility,
                                                     color: AppColors.grey,
@@ -297,8 +300,6 @@ class CreateNewPasswordScreen extends StatelessWidget {
                                     child: SizedBox(
                                       height: 40.h,
                                       child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           const TextTitle('تغيير كلمة المرور'),

@@ -53,7 +53,7 @@ class DioHelper {
 
   static Future<Response> put({
     required String path,
-    Map<String, dynamic>? body,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     bool? withToken = false,
   }) async {

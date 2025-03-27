@@ -1,4 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/model/cart_item_model/history_cart_model.dart';
+import 'package:ecommerce/model/returned/returned_model.dart';
 import 'package:ecommerce/view/screens/others/refund_requests/refund_details_screen.dart';
+import 'package:ecommerce/view_model/cubits/cart/cart_cubit.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:ecommerce/view_model/utils/app_assets/app_assets.dart';
 import 'package:ecommerce/view_model/utils/navigation/navigation.dart';
@@ -9,13 +13,21 @@ import 'package:hexcolor/hexcolor.dart';
 import '../../../../../view_model/utils/app_colors/app_colors.dart';
 
 class RefundCard extends StatelessWidget {
-  const RefundCard({super.key});
+  const RefundCard({super.key, required this.returnedItem});
+
+  final ReturnedModel returnedItem;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap:(){
-        Navigation.push(context, const RefundDetailsScreen(fromCart: false,));
+      onTap: () {
+        Navigation.push(
+            context,
+            RefundDetailsScreen(
+              fromCart: false,
+              returnedItem: returnedItem,
+              orderItem: OrderItems(),
+            ));
       },
       child: Container(
         height: 100.h,
@@ -42,7 +54,8 @@ class RefundCard extends StatelessWidget {
                   topRight: Radius.circular(8.r),
                 ),
                 image: DecorationImage(
-                  image: Image.asset(AppAssets.section4).image,
+                  image: CachedNetworkImageProvider(
+                      returnedItem.orderItem?.colorImage ?? 'https://sharidah.sa/ecom/backend/public/storage/2006/1000.png'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -56,15 +69,18 @@ class RefundCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      TextBody14(
-                        'هودي بسوستة',
-                        overflow: TextOverflow.ellipsis,
-                        color: AppColors.black,
-                        fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: TextBody14(
+                          '${returnedItem.orderItem?.product?.name}',
+                          overflow: TextOverflow.ellipsis,
+                          color: AppColors.black,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      Spacer(),
+                      SizedBox(width: 8.w),
                       TextBody12(
-                        '55 ر.س',
+                        '${returnedItem.orderItem?.total} ر.س',
                         color: AppColors.black,
                       ),
                     ],
@@ -81,7 +97,7 @@ class RefundCard extends StatelessWidget {
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: HexColor(
-                            '#000000',
+                            '${returnedItem.orderItem?.colorCode??'#000000'}',
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -95,7 +111,7 @@ class RefundCard extends StatelessWidget {
                     Visibility(
                         //visible: isHistory,
                         child: TextBody12(
-                      'القطع المسترجعة : 5 قطع',
+                      'القطع المسترجعة : ${returnedItem.orderItem?.quantity} قطع',
                       fontSize: 10.sp,
                     )),
                   ]),
@@ -105,20 +121,27 @@ class RefundCard extends StatelessWidget {
                     children: [
                       const TextBody12('المقاس'),
                       SizedBox(width: 30.w),
-                      TextBody14('L'),
+                      TextBody14('${returnedItem.orderItem?.sizeCode}',
+                          fontSize: 12.sp),
                       const Spacer(),
                       TextDescription(
-                        'تاريخ الطلب : 15/12/2024',
+                        'تاريخ الطلب : ${returnedItem.createdAt}',
                         fontSize: 10.sp,
                       ),
                     ],
                   ),
-                  Row(mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     TextBody12(
                       'حالة الطلب :   ',
                       color: AppColors.black,
-                    ),TextBody14('قيد المراجعة',color: Colors.blue,)
+                    ),
+                    TextBody14(
+                      CartCubit.get(context)
+                          .localizeStatus(returnedItem.status ?? ''),
+                      fontSize: 12.sp,
+                      color: CartCubit.get(context)
+                          .statusColor(returnedItem.status ?? '#ffffff'),
+                    )
                   ])
                 ],
               ),

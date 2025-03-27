@@ -23,26 +23,12 @@ class CounterComponent extends StatelessWidget {
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         final ProductsCubit cubit = ProductsCubit.get(context);
-        //final CartCubit cartCubit = CartCubit.get(context);
-        if (cart) {
-          //cartCubit.productCounts.update(productId, (currentCount) => productCount);
-        }
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             GestureDetector(
-              onTapDown: (_) {if (cart) {
-               // cartCubit.startIncrementing(productId);
-              }
-                cubit.startIncrementing(productId);
-              },
-              onTapUp: (_) {
-                cubit.stopIncrementing();
-              },
-              onTapCancel: () {
-                cubit.stopIncrementing();
-              },
               onTap: () {
+
                 cubit.incrementNumber(productId);
               },
               child: Container(
@@ -74,15 +60,6 @@ class CounterComponent extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 cubit.decrementNumber(productId);
-              },
-              onTapDown: (_) {
-                cubit.startDecrementing(productId);
-              },
-              onTapUp: (_) {
-                cubit.stopDecrementing();
-              },
-              onTapCancel: () {
-                cubit.stopDecrementing();
               },
               child: Container(
                 height: 18.h,

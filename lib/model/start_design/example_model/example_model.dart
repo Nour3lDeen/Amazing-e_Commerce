@@ -1,7 +1,7 @@
 class Examples {
   int? id;
   String? name;
-  String? price;
+  int? price;
   String? media;
 
   Examples({this.id, this.name, this.price, this.media});

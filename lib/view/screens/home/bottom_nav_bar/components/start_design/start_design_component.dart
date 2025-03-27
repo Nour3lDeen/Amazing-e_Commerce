@@ -40,7 +40,6 @@ class StartDesignComponent extends StatelessWidget {
                     ),
                   ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextTitle(
@@ -114,7 +113,6 @@ class StartDesignComponent extends StatelessWidget {
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     TextTitle(
                       'ابدأ تصميمك',

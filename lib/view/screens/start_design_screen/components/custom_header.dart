@@ -83,7 +83,6 @@ class CustomHeader extends StatelessWidget {
               ],
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [

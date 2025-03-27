@@ -24,7 +24,7 @@ final String title;
         return InkWell(
           onTap: () {
             cubit.changeFilterSelected(index);
-            cubit.getCategoryProduct(index);
+           // cubit.getCategoryProduct(index);
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.sp),
@@ -38,7 +38,6 @@ final String title;
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
                 color: AppColors.primaryColor,
-                width: 1,
               ),
             ),
             child: Center(

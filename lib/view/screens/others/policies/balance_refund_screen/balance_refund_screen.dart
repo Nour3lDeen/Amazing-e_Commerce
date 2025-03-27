@@ -1,6 +1,9 @@
 import 'dart:ui';
 
+import 'package:ecommerce/model/policy/policy_model.dart';
+import 'package:ecommerce/view_model/cubits/home/bottom_nav_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -37,10 +40,8 @@ class BalanceRefundScreen extends StatelessWidget {
               fit: BoxFit.cover,
             )),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
@@ -101,7 +102,7 @@ class BalanceRefundScreen extends StatelessWidget {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 24.h),
+                padding: EdgeInsets.only(right: 32.w,left: 32.w, top: 24.h),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(32.r),
@@ -116,52 +117,35 @@ class BalanceRefundScreen extends StatelessWidget {
                     ).image,
                   ),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    TextTitle(
-                      'سياسة استرجاع الرصيد',
-                      fontSize: 18.sp,
-                      color: AppColors.primaryColor,
-                    ),
-                    SizedBox(
-                      height: 8.h,
-                    ),
-                    TextBody14(
-                      textAlign: TextAlign.center,
-                      'في Amazing نحرص على تقديم تجربة تسوق مميزة ومرنة، ولذلك وضعنا سياسة استرجاع الرصيد بالشروط التالية:',
-                      fontSize: 16.sp,
-                      color: AppColors.black,
-                    ),
-                    SizedBox(
-                      height: 8.h,
-                    ),
-                    Expanded(
-                        child: SingleChildScrollView(
+                child: BlocBuilder<BottomNavCubit, BottomNavState>(
+                  builder: (context, state) {
+                    final cubit = BottomNavCubit.get(context);
+                    PolicyModel policy = cubit.policies
+                        .firstWhere((element) => element.type == 'wallet');
+                    return SingleChildScrollView(
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          TextBody14("""
-1) فترة استرجاع الرصيد:\n
-يمكن للعملاء استرجاع الرصيد خلال فترة أقصاها سنتان (24 شهرًا) من تاريخ إضافته إلى الحساب.\n
-بعد انتهاء هذه الفترة، لن يكون الرصيد صالحًا للاستخدام أو الاسترداد.\n\n
-2) في حالة استرجاع المنتجات للحصول على الرصيد:\n
-إذا تم إرجاع المنتج، سيُضاف إلى رصيد العميل 50% فقط من قيمة المنتج الأصلية.\n
-يجب أن يكون المنتج بحالته الأصلية وغير مستخدم، ومغلفًا بنفس التغليف الأصلي.\n\n
-3) آلية استرجاع الرصيد:\n
-يتم إضافة الرصيد إلى حساب العميل في التطبيق أو يمكن تحويله إلى وسيلة الدفع الأصلية حسب الشروط المتفق عليها.\n
-الرصيد المضاف يمكن استخدامه في عمليات الشراء المستقبلية فقط ولا يمكن تحويله إلى نقد.\n\n
-4) شروط عامة:\n
-تُطبّق هذه السياسة على المنتجات المسترجعة وفقاً لشروط الاسترجاع العامة المذكورة في سياسة الشركة.\n
-الشركة تحتفظ بالحق في تعديل أو تحديث هذه السياسة وفقًا لمتطلبات العمل مع إخطار العملاء بأي تغييرات.\n\n
-نشكرك على ثقتك بنا، ونسعى دائمًا لتقديم أفضل تجربة تسوق لك!\n
-للاستفسار، يرجى التواصل مع خدمة العملاء عبر [رقم الهاتف أو البريد الإلكتروني].
-""")
+                          TextTitle(
+                            policy.title ?? '',
+                            fontSize: 18.sp,
+                            color: AppColors.primaryColor,
+                          ),
+                          SizedBox(
+                            height: 8.h,
+                          ),
+                          TextBody14(
+                            cubit.refactorText(policy.policy ?? ''),
+                            textAlign: TextAlign.right,
+                            color: AppColors.black,
+                          ),
+                          SizedBox(
+                            height: 8.h,
+                          ),
                         ],
                       ),
-                    ))
-                  ],
+                    );
+                  },
                 ),
               ),
             ),

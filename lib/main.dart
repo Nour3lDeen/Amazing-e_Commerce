@@ -9,8 +9,9 @@ import 'my_app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+ // await Firebase.initializeApp();
   await SharedHelper.init();
+
   runApp(EasyLocalization(
     supportedLocales: const [Locale('ar'), Locale('en')],
     path: 'assets/translation',

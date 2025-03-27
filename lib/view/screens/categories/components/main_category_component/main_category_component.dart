@@ -44,7 +44,6 @@ class MainCategoryComponent extends StatelessWidget {
               ),
             ],
             borderRadius: BorderRadius.circular(16.r),
-            shape: BoxShape.rectangle,
             image: DecorationImage(
               fit: BoxFit.cover,
               image: CachedNetworkImageProvider(image),
@@ -76,7 +75,6 @@ class MainCategoryComponent extends StatelessWidget {
               ),
             ),
             Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: index % 2 == 0
                     ? CrossAxisAlignment.start
                     : CrossAxisAlignment.end,
@@ -137,7 +135,6 @@ class MainCategoryComponent extends StatelessWidget {
                               color: HexColor('#EFEFEF').withValues(alpha: 0.7),
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Hero(

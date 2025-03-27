@@ -1,6 +1,6 @@
 class Logos {
   int? id;
-  String? price;
+  int? price;
   String? image;
 
   Logos({this.id,  this.price, this.image});

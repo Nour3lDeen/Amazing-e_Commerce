@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce/model/sections_model/sections_model.dart';
+import 'package:ecommerce/view/screens/brands_sceen/brands_screen.dart';
+import 'package:ecommerce/view/screens/categories/category_details/category_details_screen.dart';
 import 'package:ecommerce/view/screens/categories/components/bottom_buttons_component/bottom_buttons_component.dart';
 import 'package:ecommerce/view/screens/categories/components/choose_color_component/choose_color_component.dart';
 import 'package:ecommerce/view/screens/categories/components/favorite_component/favorite_component.dart';
@@ -11,6 +13,7 @@ import 'package:ecommerce/view_model/cubits/products/products_cubit.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:ecommerce/view_model/utils/app_assets/app_assets.dart';
 import 'package:ecommerce/view_model/utils/app_colors/app_colors.dart';
+import 'package:ecommerce/view_model/utils/navigation/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -38,14 +41,14 @@ class ProductDetailsScreen extends StatelessWidget {
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         final cubit = ProductsCubit.get(context);
-
-        bool hasDiscount = product.sizes
-                ?.firstWhere(
+        debugPrint('rate ${product.rate?.toDouble()}');
+        bool hasDiscount = product.sizes!
+                .firstWhere(
                   (element) => element.sizeCode == cubit.selectedSize,
-                  orElse: () => Sizes(sizeCode: '', discountPrice: '0'),
+                  orElse: () => Sizes(sizeCode: '', discountPrice: 0),
                 )
-                .discountPrice !=
-            '0';
+                .discountPrice! >
+            0;
 
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -67,7 +70,12 @@ class ProductDetailsScreen extends StatelessWidget {
                             image: DecorationImage(
                               fit: BoxFit.fill,
                               image: CachedNetworkImageProvider(
-                                cubit.peekStack() ?? cubit.imageUrl,
+                                cubit
+                                        .peekStack()
+                                        ?.replaceFirst('http://', 'https://') ??
+                                    cubit.imageUrl
+                                        .replaceFirst('http://', 'https://'),
+                                cacheKey: cubit.peekStack() ?? cubit.imageUrl,
                               ),
                             ),
                           ),
@@ -167,30 +175,25 @@ class ProductDetailsScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Product Name and Rating
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    TextTitle(
-                                      product.name!,
-                                      color: AppColors.primaryColor,
-                                      fontSize: 18.sp,
+                                    Expanded(
+                                      child: TextTitle(
+                                        product.name ?? '',
+                                        color: AppColors.primaryColor,
+                                        fontSize: 16.sp,
+                                      ),
                                     ),
-                                    const Spacer(),
-                                    Row(
-                                      children: List.generate(3, (index) {
-                                        return Padding(
-                                          padding: EdgeInsets.only(left: 4.w),
-                                          child:
-                                              SvgPicture.asset(AppAssets.star),
-                                        );
-                                      }),
+                                    TextDescription(
+                                      '(${product.rate ?? ''})',
                                     ),
+                                    SvgPicture.asset(AppAssets.star)
                                   ],
                                 ),
                                 SizedBox(height: 12.h),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Column(
                                       spacing: 4.h,
@@ -218,8 +221,8 @@ class ProductDetailsScreen extends StatelessWidget {
                                                           ProductsCubit.get(
                                                                   context)
                                                               .selectedSize,
-                                                      orElse: () => Sizes(
-                                                          basicPrice: '0'),
+                                                      orElse: () =>
+                                                          Sizes(basicPrice: 0),
                                                     ).discountRate} %',
                                                 color: AppColors.white,
                                               )),
@@ -232,7 +235,7 @@ class ProductDetailsScreen extends StatelessWidget {
                                                 alignment: AlignmentDirectional
                                                     .bottomCenter,
                                                 child: Text(
-                                                    '${cubit.sizes.firstWhere((element) => element.sizeCode == cubit.selectedSize, orElse: () => Sizes(basicPrice: '0')).basicPrice} ر.س',
+                                                    '${cubit.sizes.firstWhere((element) => element.sizeCode == cubit.selectedSize, orElse: () => Sizes(basicPrice: 0)).basicPrice} ر.س',
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
                                                       fontFamily: 'Lamar',
@@ -252,17 +255,32 @@ class ProductDetailsScreen extends StatelessWidget {
                                             Visibility(
                                                 visible: hasDiscount,
                                                 child: SizedBox(width: 8.w)),
-                                            TextBody14(
-                                              '${product.sizes!.firstWhere(
-                                                    (element) =>
-                                                        element.sizeCode ==
-                                                        ProductsCubit.get(
-                                                                context)
-                                                            .selectedSize,
-                                                    orElse: () =>
-                                                        Sizes(basicPrice: '0'),
-                                                  ).basicPrice} ر.س',
-                                              color: AppColors.black,
+                                            Visibility(
+                                              visible: hasDiscount,
+                                              replacement: TextBody14(
+                                                '${product.sizes!.firstWhere(
+                                                      (element) =>
+                                                          element.sizeCode ==
+                                                          ProductsCubit.get(
+                                                                  context)
+                                                              .selectedSize,
+                                                      orElse: () =>
+                                                          Sizes(basicPrice: 0),
+                                                    ).basicPrice} ر.س',
+                                                color: AppColors.black,
+                                              ),
+                                              child: TextBody14(
+                                                '${product.sizes!.firstWhere(
+                                                      (element) =>
+                                                          element.sizeCode ==
+                                                          ProductsCubit.get(
+                                                                  context)
+                                                              .selectedSize,
+                                                      orElse: () =>
+                                                          Sizes(basicPrice: 0),
+                                                    ).discountPrice} ر.س',
+                                                color: AppColors.black,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -275,8 +293,10 @@ class ProductDetailsScreen extends StatelessWidget {
                                   ],
                                 ),
                                 SizedBox(height: 12.h),
-                                ChooseColorComponent(
-                                  product: product,
+                                Center(
+                                  child: ChooseColorComponent(
+                                    product: product,
+                                  ),
                                 ),
                                 SizedBox(height: 12.h),
                                 Row(
@@ -286,7 +306,7 @@ class ProductDetailsScreen extends StatelessWidget {
                                       'القطع المتوفرة',
                                       color: AppColors.black,
                                     ),
-                                    TextBody14(product.stock!),
+                                    TextBody14('${product.stock}'),
                                     const Spacer(),
                                     CounterComponent(
                                       productId: productId,
@@ -299,12 +319,13 @@ class ProductDetailsScreen extends StatelessWidget {
                                   height: 12.h,
                                 ),
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   spacing: 6.w,
                                   children: [
                                     const TextBody14('العلامة التجارية:'),
                                     GestureDetector(
                                       onTap: () {
+                                        Navigation.push(
+                                            context, const BrandsScreen());
                                         debugPrint(product.brandName!);
                                       },
                                       child: TextBody14(
@@ -319,6 +340,7 @@ class ProductDetailsScreen extends StatelessWidget {
                                   height: 12.h,
                                 ),
 
+/*
                                 Visibility(
                                   visible: hasDiscount,
                                   child: Column(
@@ -341,13 +363,13 @@ class ProductDetailsScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ),
+*/
 
                                 TextTitle(
                                   'وصف المنتج',
                                   color: AppColors.primaryColor,
                                 ),
                                 SizedBox(height: 6.h),
-
                                 Padding(
                                   padding: EdgeInsets.only(right: 8.w),
                                   child: TextBody14(
@@ -361,47 +383,114 @@ class ProductDetailsScreen extends StatelessWidget {
                                 SizedBox(
                                   height: 12.h,
                                 ),
-                                Center(
-                                  child: TextTitle(
-                                    'فيديو توضيحي للمنتج',
-                                    color: AppColors.primaryColor,
+                                Visibility(
+                                  visible: product.video != null &&
+                                      product.video!.isNotEmpty,
+                                  child: Column(
+                                    children: [
+                                      Center(
+                                        child: TextTitle(
+                                          'فيديو توضيحي للمنتج',
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 6.h),
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16.w),
+                                        child: VideoPreviewComponent(
+                                          videoUrl: product.video!,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 12.h,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                SizedBox(height: 6.h),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 16.w),
-                                  child: VideoPreviewComponent(
-                                    videoUrl: product.video!,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 12.h,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    TextTitle(
-                                      'منتجات أخرى',
-                                      color: AppColors.primaryColor,
-                                    ),
-                                    const Spacer(),
-                                    Row(
+                                Visibility(
+                                  visible: cubit.everyProducts
+                                          .where((e) =>
+                                              e.categoryId ==
+                                                  product.categoryId &&
+                                              e.id != productId)
+                                          .length >
+                                      0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      cubit.categories.clear();
+                                      cubit.products.clear();
+
+                                      cubit.showSection(cubit.sections
+                                          .where((element) =>
+                                              element.id == product.sectionId)
+                                          .first
+                                          .id!);
+                                      debugPrint(
+                                          'Selected Category ID: ${cubit.sections.where((element) => element.id == product.sectionId).first.id}');
+                                      if (cubit.categories.isNotEmpty) {
+                                        cubit.changeFilterSelected(cubit
+                                            .categories
+                                            .where((element) =>
+                                                element.id ==
+                                                product.categoryId)
+                                            .first
+                                            .id!);
+                                        cubit.selectedIndex = cubit.categories
+                                            .where((element) =>
+                                                element.id ==
+                                                product.categoryId)
+                                            .first
+                                            .id!;
+                                        /*                                      cubit.getCategoryProduct(cubit.categories
+                                            .where((element) =>
+                                                element.id == product.categoryId)
+                                            .first
+                                            .id!);*/
+                                      }
+                                      Navigation.push(
+                                          context,
+                                          CategoryDetailsScreen(
+                                            title: cubit.sections
+                                                    .where((element) =>
+                                                        element.id ==
+                                                        product.sectionId)
+                                                    .first
+                                                    .name ??
+                                                '',
+                                            section: cubit.sections
+                                                .where((element) =>
+                                                    element.id ==
+                                                    product.sectionId)
+                                                .first,
+                                          ));
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        TextBody14(
-                                          'المزيد',
-                                          color: AppColors.grey,
+                                        TextTitle(
+                                          'منتجات أخرى',
+                                          color: AppColors.primaryColor,
                                         ),
-                                        SizedBox(width: 6.w),
-                                        Icon(
-                                          Icons.arrow_forward_ios_rounded,
-                                          size: 14,
-                                          color: AppColors.grey,
-                                        ),
+                                        const Spacer(),
+                                        Row(
+                                          children: [
+                                            TextBody14(
+                                              'المزيد',
+                                              color: AppColors.grey,
+                                            ),
+                                            SizedBox(width: 6.w),
+                                            Icon(
+                                              Icons.arrow_forward_ios_rounded,
+                                              size: 14,
+                                              color: AppColors.grey,
+                                            ),
+                                          ],
+                                        )
                                       ],
-                                    )
-                                  ],
+                                    ),
+                                  ),
                                 ),
                                 SizedBox(
                                   height: 6.h,
@@ -412,18 +501,58 @@ class ProductDetailsScreen extends StatelessWidget {
                                   child: Row(
                                     spacing: 12.w,
                                     children: List.generate(
-                                        cubit.products.length-1 , (index) {
-                                      final product = cubit.products
+                                        cubit.everyProducts
+                                                    .where((e) =>
+                                                        e.categoryId ==
+                                                            product
+                                                                .categoryId &&
+                                                        e.id != productId)
+                                                    .length >
+                                                6
+                                            ? 6
+                                            : cubit.everyProducts
+                                                .where((e) =>
+                                                    e.categoryId ==
+                                                        product.categoryId &&
+                                                    e.id != productId)
+                                                .length, (index) {
+                                      /* final product = cubit.products
                                           .where((product) =>
                                               product.id != productId)
-                                          .first;
+                                          .first;*/
                                       return ProductCard(
-                                        title: product.name!,
-                                        image: product
-                                            .colors!.first.images!.first.url!,
+                                        product: cubit.everyProducts
+                                            .where((e) =>
+                                                e.categoryId ==
+                                                    product.categoryId &&
+                                                e.id != productId)
+                                            .toList()[index],
+                                        title: cubit.everyProducts
+                                            .where((e) =>
+                                                e.categoryId ==
+                                                    product.categoryId &&
+                                                e.id != productId)
+                                            .toList()[index]
+                                            .name!,
+                                        image: cubit.everyProducts
+                                            .where((e) =>
+                                                e.categoryId ==
+                                                    product.categoryId &&
+                                                e.id != productId)
+                                            .toList()[index]
+                                            .colors!
+                                            .first
+                                            .images!
+                                            .first
+                                            .url!,
                                         fromHome: false,
-                                        productId: product.id!,
-                                        hasDiscount: false,
+                                        productId: cubit.everyProducts
+                                            .where((e) =>
+                                                e.categoryId ==
+                                                    product.categoryId &&
+                                                e.id != productId)
+                                            .toList()[index]
+                                            .id!,
                                       );
                                     }),
                                   ),

@@ -37,7 +37,6 @@ class NotificationComponent extends StatelessWidget {
                   Container(
                     height: 40.h,
                     width: 40.w,
-                    clipBehavior: Clip.none,
                     decoration: BoxDecoration(
                         color: Colors.transparent,
                         boxShadow: [
@@ -65,13 +64,13 @@ class NotificationComponent extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextBody14('منتجك في مرحلة التحضير '),
+                      const TextBody14('منتجك في مرحلة التحضير '),
                       SizedBox(height: 4.h),
-                      TextBody12('تم مراجعة منتجكم وجاري تحضيره')
+                      const TextBody12('تم مراجعة منتجكم وجاري تحضيره')
                     ],
                   ),
-                  Spacer(),
-                  TextDescription('منذ 4 ساعات')
+                  const Spacer(),
+                  const TextDescription('منذ 4 ساعات')
                 ]),
           )),
     );

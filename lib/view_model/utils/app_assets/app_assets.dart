@@ -123,4 +123,8 @@ class AppAssets {
   static String doubleConfirm = 'assets/svgs/double_confirm.svg';
   static String cashCheck = 'assets/svgs/cash_check.svg';
   static String confirmCheckOut = 'assets/svgs/confirm_check_out.svg';
+  static String blackLogo = 'assets/svgs/black_logo.svg';
+  static String whiteLogo = 'assets/svgs/white_logo.svg';
+  static String noConnection = 'assets/svgs/no_connection.svg';
+  static String reload = 'assets/svgs/reload.svg';
 }

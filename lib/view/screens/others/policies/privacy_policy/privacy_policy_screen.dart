@@ -38,10 +38,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       fit: BoxFit.cover,
                     )),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
@@ -119,8 +117,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         TextTitle(
                           'Privacy Policy Terms',
@@ -139,12 +135,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
                         SizedBox(
                           height: 8.h,
                         ),
-                        Expanded(
+                        const Expanded(
                             child: SingleChildScrollView(
                               child: Column(
                                 children: [
                                   TextBody14(textAlign:TextAlign.left,
-                                      """
+                                      '''
 :Information We Collect\n
 We may collect the following types of information:\n
 - **Personal Information:** Name, email address, phone number, shipping address, and payment details.\n
@@ -178,7 +174,7 @@ We retain your data only as long as necessary to provide our services or as requ
 
  :Changes to This Policy\n
 We may update this Privacy Policy periodically. Any changes will be communicated through the app or our website.\n
-""")
+''')
 
                                 ],
                               ),

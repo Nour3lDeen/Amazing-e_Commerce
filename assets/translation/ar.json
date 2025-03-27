@@ -13,7 +13,6 @@
   "forgotPassword": "نسيت كلمة المرور؟",
   "doNotHaveAnAccount": "ليس لديك حساب؟",
   "register": "إنشاء حساب جديد",
-  "registerSuccess": "تم إنشاء حساب جديد",
   "firstName": "الإسم الأول",
   "firstNameError": "الرجاء إدخال الإسم الأول",
   "lastName": "اسم العائلة",

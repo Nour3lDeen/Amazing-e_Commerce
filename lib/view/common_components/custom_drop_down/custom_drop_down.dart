@@ -16,7 +16,11 @@ class CustomDropdownFormField extends StatelessWidget {
     required this.items,
     required this.onChanged,
     required this.value,
-    this.validator, this.fillColor, this.hintColor, this.borderRadius, this.hasShadow,
+    this.validator,
+    this.fillColor,
+    this.hintColor,
+    this.borderRadius,
+    this.hasShadow,
   });
 
   final String title;
@@ -27,10 +31,11 @@ class CustomDropdownFormField extends StatelessWidget {
   final String? value;
   final void Function(String?) onChanged;
   final String? Function(String?)? validator;
-final Color? fillColor;
+  final Color? fillColor;
   final Color? hintColor;
   final double? borderRadius;
   final bool? hasShadow;
+
   @override
   Widget build(BuildContext context) {
     final locale = context.locale;
@@ -58,34 +63,38 @@ final Color? fillColor;
           ),
         ),
         Container(
-          decoration: hasShadow==true? BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(14.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                offset: Offset(0.0, 3.h),
-                blurRadius: 6.0,
-              )
-            ]
-          ):null,
+          decoration: hasShadow == true
+              ? BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(14.r),
+                  boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        offset: Offset(0.0, 3.h),
+                        blurRadius: 6.0,
+                      )
+                    ])
+              : null,
           child: DropdownButtonFormField<String>(
-
+            dropdownColor: AppColors.white,
             isExpanded: true,
             value: value,
             items: items
                 .map(
                   (item) => DropdownMenuItem<String>(
                     value: item,
-                    child: TextBody14(
-                      item,
-                      overflow: TextOverflow.ellipsis,
-                      color: AppColors.black,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      child: TextBody14(
+                        item,
+                        fontSize: 10.sp,
+                        overflow: TextOverflow.ellipsis,
+                        color: AppColors.black,
+                      ),
                     ),
                   ),
                 )
                 .toList(),
-          isDense: true,
             onChanged: onChanged,
             validator: validator,
             hint: TextBody12(
@@ -95,6 +104,11 @@ final Color? fillColor;
               overflow: TextOverflow.ellipsis,
             ),
             decoration: InputDecoration(
+              errorStyle: TextStyle(
+                fontSize: 8.sp,
+                color: Colors.red,
+                fontFamily: 'Lamar',
+              ),
               contentPadding:
                   EdgeInsets.only(right: 8.w, left: 8.w, bottom: 5.h),
               fillColor: fillColor ?? AppColors.white.withValues(alpha: 0.4),

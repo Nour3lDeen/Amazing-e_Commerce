@@ -12,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../view_model/utils/Texts/Texts.dart';
 import '../../../../view_model/utils/app_assets/app_assets.dart';
@@ -75,12 +76,10 @@ class LoginScreen extends StatelessWidget {
           ),
           child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SvgPicture.asset(
-                  AppAssets.logo,
-                  height: 30.h,
+                  AppAssets.blackLogo,
+                  height: 40.h,
                   colorFilter:
                       const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                 ),
@@ -88,7 +87,6 @@ class LoginScreen extends StatelessWidget {
                   height: 8.h,
                 ),
                 Align(
-                  alignment: Alignment.center,
                   child: Hero(
                     tag: 'login',
                     transitionOnUserGestures: true,
@@ -168,13 +166,16 @@ class LoginScreen extends StatelessWidget {
                                       },
                                       textInputAction: TextInputAction.done,
                                       obscureText:
-                                          AuthCubit.get(context).showPassword,
+                                          AuthCubit.get(context).passwordVisibility['password']!,
                                       controller: AuthCubit.get(context)
                                           .loginPasswordController,
-                                      onIconTap: AuthCubit.get(context)
-                                          .changePasswordVisibility,
+                                      onIconTap: () {
+                                        AuthCubit
+                                            .get(context)
+                                            .changePasswordVisibility('password');
+                                      },
                                       suffixIcon:
-                                          !AuthCubit.get(context).showPassword
+                                          !AuthCubit.get(context).passwordVisibility['password']!
                                               ? Icon(
                                                   Icons.visibility,
                                                   color: AppColors.grey,
@@ -260,16 +261,17 @@ class LoginScreen extends StatelessWidget {
                                         AuthCubit.get(context).viewToast(
                                             LocaleKeys.loginSuccess.tr(),
                                             context,
-                                            Colors.green);
+                                            Colors.green,2);
                                       } else if (state is LoginErrorState) {
                                         AuthCubit.get(context).viewToast(
-                                            state.msg, context, Colors.red);
+                                            state.msg, context, Colors.red,4);
                                       }
                                     },
                                     builder: (context, state) {
                                       if (state is LoginLoadingState) {
-                                        return const CircularProgressIndicator
-                                            .adaptive();
+                                        return LoadingAnimationWidget.inkDrop(
+                                            color: AppColors.primaryColor,
+                                            size: 20.sp);
                                       }
                                       return CustomButton(
                                         onPressed: () {
@@ -335,7 +337,6 @@ class LoginScreen extends StatelessWidget {
                                   ),
                                 ),
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     TextBody14(
@@ -351,8 +352,8 @@ class LoginScreen extends StatelessWidget {
                                             context, const RegisterScreen());
 
                                         AuthCubit.get(context).clearData();
-                                        debugPrint(
-                                            '${AuthCubit.get(context).showPassword}');
+                                        /*debugPrint(
+                                            '${AuthCubit.get(context).showPassword}');*/
                                       },
                                       child: TextTitle(
                                         fontSize: 14.sp,

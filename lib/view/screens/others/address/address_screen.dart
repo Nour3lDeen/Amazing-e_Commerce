@@ -1,6 +1,8 @@
 import 'dart:ui';
+import 'package:ecommerce/model/auth/user.dart';
 import 'package:ecommerce/view/screens/others/address/add_address_screen.dart';
 import 'package:ecommerce/view/screens/others/address/components/location_component.dart';
+import 'package:ecommerce/view_model/cubits/auth/auth_cubit.dart';
 import 'package:ecommerce/view_model/data/local/shared_helper.dart';
 import 'package:ecommerce/view_model/data/local/shared_keys.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
@@ -8,9 +10,11 @@ import 'package:ecommerce/view_model/utils/app_assets/app_assets.dart';
 import 'package:ecommerce/view_model/utils/app_colors/app_colors.dart';
 import 'package:ecommerce/view_model/utils/navigation/navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class AddressScreen extends StatelessWidget {
   const AddressScreen({super.key});
@@ -38,10 +42,8 @@ class AddressScreen extends StatelessWidget {
               fit: BoxFit.cover,
             )),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
@@ -124,83 +126,100 @@ class AddressScreen extends StatelessWidget {
                     ).image,
                   ),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 16.h,
-                  children: [
-                    Visibility(
-                      visible: true,
-                      child: Row(
+                child: BlocBuilder<AuthCubit, AuthState>(
+                  builder: (context, state) {
+                    final authCubit = AuthCubit.get(context);
+                    if (state is AuthGetDataLoadingState ||
+                        authCubit.user == null) {
+                      return Center(
+                          child: LoadingAnimationWidget.inkDrop(
+                              color: AppColors.primaryColor, size: 30.sp));
+                    } else {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        spacing: 16.h,
                         children: [
-                          SvgPicture.asset(
-                            AppAssets.savedLocation,
-                            height: 18.h,
-                          ),
-                          SizedBox(
-                            width: 8.w,
-                          ),
-                          TextTitle('العناوين المسجلة')
-                        ],
-                      ),
-                    ),
-                    Visibility(
-                      visible: false,
-                      replacement: Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            spacing: 8.h,
-                            children: List.generate(
-                              6,
-                              (index) {
-                                return LocationComponent();
-                              },
+                          Visibility(
+                            visible: authCubit.user!.addresses!.isNotEmpty,
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  AppAssets.savedLocation,
+                                  height: 18.h,
+                                ),
+                                SizedBox(
+                                  width: 8.w,
+                                ),
+                                const TextTitle('العناوين المسجلة')
+                              ],
                             ),
                           ),
-                        ),
-                      ),
-                      child: TextBody14(
-                        'لم يتم إضافة عناوين إلى عناوين \nالشحن الخاصة بكم',
-                        color: AppColors.primaryColor,
-                        textAlign: TextAlign.center,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigation.push(context, const AddAddressScreen());
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 36.h,
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: [
-                              HexColor('#39FAD9'),
-                              HexColor('#03A186'),
-                            ]),
-                            borderRadius: BorderRadius.circular(
-                              14.r,
-                            )),
-                        child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 6.w,
-                            children: [
-                              TextBody14(
-                                'إضافة عنوان',
-                                fontSize: 16.sp,
-                                color: AppColors.white,
+                          Visibility(
+                            visible: authCubit.user!.addresses!.isEmpty,
+                            replacement: Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  spacing: 8.h,
+                                  children: List.generate(
+                                    authCubit.user!.addresses!.length,
+                                    (index) {
+                                      return LocationComponent(
+                                        address:
+                                            authCubit.user!.addresses![index],
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
-                              SvgPicture.asset(
-                                AppAssets.addLocation,
-                                height: 18.h,
-                              )
-                            ]),
-                      ),
-                    ),
-                  ],
+                            ),
+                            child: TextBody14(
+                              'لم يتم إضافة عناوين إلى عناوين \nالشحن الخاصة بكم',
+                              color: AppColors.primaryColor,
+                              textAlign: TextAlign.center,
+                              fontSize: 16.sp,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigation.push(
+                                  context,
+                                  const AddAddressScreen(
+                                    isUpdate: false,
+                                  ));
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              height: 36.h,
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    HexColor('#39FAD9'),
+                                    HexColor('#03A186'),
+                                  ]),
+                                  borderRadius: BorderRadius.circular(
+                                    14.r,
+                                  )),
+                              child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 6.w,
+                                  children: [
+                                    TextBody14(
+                                      'إضافة عنوان',
+                                      fontSize: 16.sp,
+                                      color: AppColors.white,
+                                    ),
+                                    SvgPicture.asset(
+                                      AppAssets.addLocation,
+                                      height: 18.h,
+                                    )
+                                  ]),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 ),
               ),
             ),

@@ -13,6 +13,9 @@ import 'package:ecommerce/view/screens/others/profile/profile_screen.dart';
 import 'package:ecommerce/view/screens/others/refund_requests/refund_request_screen.dart';
 import 'package:ecommerce/view/screens/others/wallet/wallet_screen.dart';
 import 'package:ecommerce/view_model/cubits/auth/auth_cubit.dart';
+import 'package:ecommerce/view_model/cubits/cart/cart_cubit.dart';
+import 'package:ecommerce/view_model/cubits/home/bottom_nav_cubit.dart';
+import 'package:ecommerce/view_model/cubits/products/products_cubit.dart';
 import 'package:ecommerce/view_model/data/local/shared_helper.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:ecommerce/view_model/utils/navigation/navigation.dart';
@@ -21,7 +24,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hexcolor/hexcolor.dart';
-
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../view_model/data/local/shared_keys.dart';
 import '../../../view_model/utils/app_assets/app_assets.dart';
 import '../../../view_model/utils/app_colors/app_colors.dart';
@@ -52,8 +56,8 @@ class OthersScreen extends StatelessWidget {
                     horizontal: 16.w,
                     vertical:
                         SharedHelper.getData(SharedKeys.platform) == 'android'
-                            ? 32.h
-                            : 48.h),
+                            ? 52.h
+                            : 68.h),
                 width: double.infinity,
                 height: 240.h,
                 decoration: BoxDecoration(
@@ -62,65 +66,118 @@ class OthersScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                 )),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SvgPicture.asset(
-                      'assets/svgs/others_logo.svg',
-                      height: 48.h,
-                      width: 48.h,
+                    BlocBuilder<BottomNavCubit, BottomNavState>(
+                      builder: (context, state) {
+                        if (SharedHelper.getData(SharedKeys.mainLogo) != null) {
+                          if (SharedHelper.getData(SharedKeys.mainLogo)
+                                  .split('.')
+                                  .last
+                                  .toLowerCase() !=
+                              'svg') {
+                            return CachedNetworkImage(
+                              imageUrl:
+                                  SharedHelper.getData(SharedKeys.mainLogo),
+                              height: 30.h,
+                              width: 30.h,
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                              ),
+                              placeholder: (context, url) =>
+                                  LoadingAnimationWidget.inkDrop(
+                                      color: AppColors.primaryColor,
+                                      size: 30.sp),
+                            );
+                          } else {
+                            return SvgPicture.network(
+                              SharedHelper.getData(SharedKeys.mainLogo),
+                              height: 26.h,
+                              width: 26.h,
+                            );
+                          }
+                        } else {
+                          return SvgPicture.asset(
+                            'assets/svgs/others_logo.svg',
+                            height: 48.h,
+                            width: 48.h,
+                          );
+                        }
+                      },
                     ),
                     SizedBox(
                       height: 8.h,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 6.w,
-                      children: [
-                        Icon(
-                          Icons.facebook_rounded,
-                          size: 22.sp,
-                          shadows: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              offset: Offset(0.0, 3.h),
-                              blurRadius: 6.0,
-                            ),
-                          ],
-                        ),
-                        Icon(
-                          Icons.apple_rounded,
-                          size: 22.sp,
-                          shadows: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              offset: Offset(0.0, 3.h),
-                              blurRadius: 6.0,
-                            ),
-                          ],
-                        ),
-                        Icon(
-                          Icons.facebook_rounded,
-                          size: 22.sp,
-                          shadows: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              offset: Offset(0.0, 3.h),
-                              blurRadius: 6.0,
-                            ),
-                          ],
-                        ),
-                        Icon(
-                          Icons.apple_rounded,
-                          size: 22.sp,
-                          shadows: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              offset: Offset(0.0, 3.h),
-                              blurRadius: 6.0,
-                            ),
-                          ],
-                        ),
-                      ],
+                    BlocBuilder<BottomNavCubit, BottomNavState>(
+                      builder: (context, state) {
+                        final bottomNavCubit = BottomNavCubit.get(context);
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 8.w,
+                          children: List.generate(
+                              bottomNavCubit.socialLinks.length, (index) {
+                            return InkWell(
+                              onTap: () async {
+                                final url = bottomNavCubit
+                                    .socialLinks[index].socialLink;
+                                if (url != null && url.isNotEmpty) {
+                                  final uri = Uri.parse(url);
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri,
+                                        mode: LaunchMode.externalApplication);
+                                  } else {
+                                    debugPrint('❌ Could not launch $url');
+                                  }
+                                }
+                              },
+                              child: Container(
+                                height: 20.h,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.black
+                                            .withValues(alpha: 0.1),
+                                        blurRadius: 4,
+                                        offset: Offset(1.w, 3.h),
+                                      )
+                                    ]),
+                                child: bottomNavCubit
+                                            .socialLinks[index].socialIcon
+                                            ?.split('.')
+                                            .last
+                                            .toLowerCase() !=
+                                        'svg'
+                                    ? CachedNetworkImage(
+                                        imageUrl: bottomNavCubit
+                                                .socialLinks[index]
+                                                .socialIcon ??
+                                            '',
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                          Icons.error,
+                                          color: Colors.red,
+                                        ),
+                                        placeholder: (context, url) =>
+                                            LoadingAnimationWidget.inkDrop(
+                                                color: AppColors.primaryColor,
+                                                size: 10.sp),
+                                      )
+                                    : SvgPicture.network(
+                                        placeholderBuilder: (context) =>
+                                            LoadingAnimationWidget.inkDrop(
+                                                color: AppColors.primaryColor,
+                                                size: 20.sp),
+                                        bottomNavCubit.socialLinks[index]
+                                                .socialIcon ??
+                                            '',
+                                      ),
+                              ),
+                            );
+                          }),
+                        );
+                      },
                     )
                   ],
                 ),
@@ -165,8 +222,8 @@ class OthersScreen extends StatelessWidget {
                             child: Visibility(
                               visible: isLoggedIn,
                               replacement: GestureDetector(
-                                onTap: () =>
-                                    Navigation.push(context, LoginScreen()),
+                                onTap: () => Navigation.push(
+                                    context, const LoginScreen()),
                                 child: Hero(
                                   tag: 'login',
                                   transitionOnUserGestures: true,
@@ -221,14 +278,13 @@ class OthersScreen extends StatelessWidget {
                                       onTap: () {
                                         if (isLoggedIn) {
                                           Navigation.push(
-                                              context, ProfileScreen());
+                                              context, const ProfileScreen());
                                           debugPrint('profile');
                                         } else {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: true,
                                             builder: (ctx) {
-                                              return NotLoggedComponent();
+                                              return const NotLoggedComponent();
                                             },
                                           );
                                         }
@@ -239,7 +295,7 @@ class OthersScreen extends StatelessWidget {
                                       title: 'علاماتنا التجارية',
                                       onTap: () => Navigation.push(
                                             context,
-                                            BrandsScreen(),
+                                            const BrandsScreen(),
                                           ),
                                       icon: AppAssets.brands),
                                   OthersCard(
@@ -247,15 +303,14 @@ class OthersScreen extends StatelessWidget {
                                         if (isLoggedIn) {
                                           Navigation.push(
                                             context,
-                                            NotificationsScreen(),
+                                            const NotificationsScreen(),
                                           );
                                           debugPrint('notifications');
                                         } else {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: true,
                                             builder: (ctx) {
-                                              return NotLoggedComponent();
+                                              return const NotLoggedComponent();
                                             },
                                           );
                                         }
@@ -265,17 +320,18 @@ class OthersScreen extends StatelessWidget {
                                   OthersCard(
                                       onTap: () {
                                         if (isLoggedIn) {
+                                          ProductsCubit.get(context)
+                                              .getFavorites();
                                           Navigation.push(
                                             context,
-                                            FavouritesScreen(),
+                                            const FavouritesScreen(),
                                           );
                                           debugPrint('favourites');
                                         } else {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: true,
                                             builder: (ctx) {
-                                              return NotLoggedComponent();
+                                              return const NotLoggedComponent();
                                             },
                                           );
                                         }
@@ -285,14 +341,20 @@ class OthersScreen extends StatelessWidget {
                                   OthersCard(
                                       onTap: () {
                                         if (isLoggedIn) {
-                                          Navigation.push(context, AddressScreen());
-                                          debugPrint('address');
+                                          debugPrint(
+                                              'Before calling getUserData: ${AuthCubit.get(context).state}');
+
+                                          AuthCubit.get(context).getUserData();
+                                          debugPrint(
+                                              'After calling getUserData: ${AuthCubit.get(context).state}');
+
+                                          Navigation.push(
+                                              context, const AddressScreen());
                                         } else {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: true,
                                             builder: (ctx) {
-                                              return NotLoggedComponent();
+                                              return const NotLoggedComponent();
                                             },
                                           );
                                         }
@@ -303,14 +365,13 @@ class OthersScreen extends StatelessWidget {
                                       onTap: () {
                                         if (isLoggedIn) {
                                           Navigation.push(
-                                              context, WalletScreen());
+                                              context, const WalletScreen());
                                           debugPrint('profile');
                                         } else {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: true,
                                             builder: (ctx) {
-                                              return NotLoggedComponent();
+                                              return const NotLoggedComponent();
                                             },
                                           );
                                         }
@@ -321,16 +382,17 @@ class OthersScreen extends StatelessWidget {
                                       onTap: () {
                                         if (isLoggedIn) {
                                           debugPrint('refund');
+                                          CartCubit.get(context)
+                                              .getReturnedItems();
                                           Navigation.push(
                                             context,
-                                            RefundRequestScreen(),
+                                            const RefundRequestScreen(),
                                           );
                                         } else {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: true,
                                             builder: (ctx) {
-                                              return NotLoggedComponent();
+                                              return const NotLoggedComponent();
                                             },
                                           );
                                         }
@@ -341,7 +403,7 @@ class OthersScreen extends StatelessWidget {
                                       onTap: () {
                                         Navigation.push(
                                           context,
-                                          RefundPolicy(),
+                                          const RefundPolicy(),
                                         );
                                       },
                                       title: 'سياسة الاسترجاع',
@@ -349,26 +411,25 @@ class OthersScreen extends StatelessWidget {
                                   OthersCard(
                                       onTap: () {
                                         if (isLoggedIn) {
-                                          if (false) {
+                                         /* if (false) {
                                             showDialog(
-                                              barrierDismissible: true,
                                               context: context,
-                                              builder: (context) => Chat(),
+                                              builder: (context) =>
+                                                  const Chat(),
                                             );
-                                          } else {
+                                          } else */{
                                             showDialog(
-                                              barrierDismissible: true,
                                               context: context,
-                                              builder: (context) => ContactUs(),
+                                              builder: (context) =>
+                                                  const ContactUs(),
                                             );
                                           }
                                           debugPrint('contact');
                                         } else {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: true,
                                             builder: (ctx) {
-                                              return NotLoggedComponent();
+                                              return const NotLoggedComponent();
                                             },
                                           );
                                         }
@@ -376,9 +437,10 @@ class OthersScreen extends StatelessWidget {
                                       title: 'تواصل معنا',
                                       icon: AppAssets.contact),
                                   OthersCard(
-                                    onTap: (){
-                                      Navigation.push(context, PrivacyPolicyScreen());
-                                    },
+                                      onTap: () {
+                                        Navigation.push(context,
+                                            const PrivacyPolicyScreen());
+                                      },
                                       title: 'سياسة الخصوصية',
                                       icon: AppAssets.privacy),
                                   Visibility(
@@ -410,16 +472,18 @@ class OthersScreen extends StatelessWidget {
                                           child: CustomButton(
                                               onPressed: () {
                                                 showModalBottomSheet(
-                                                    isDismissible: true,
                                                     backgroundColor:
                                                         Colors.transparent,
-                                                    transitionAnimationController: AnimationController(
-                                                      vsync: Scaffold.of(context),
-                                                      duration: const Duration(milliseconds: 500),
+                                                    transitionAnimationController:
+                                                        AnimationController(
+                                                      vsync:
+                                                          Scaffold.of(context),
+                                                      duration: const Duration(
+                                                          milliseconds: 500),
                                                     ),
                                                     context: context,
                                                     builder: (context) {
-                                                      return LogoutComponent();
+                                                      return const LogoutComponent();
                                                     });
                                                 // authCubit.logout(context);
                                               },
@@ -429,12 +493,13 @@ class OthersScreen extends StatelessWidget {
                                                 HexColor('#B84141'),
                                               ]),
                                               child: SizedBox(
-                                                width: 180.w,
-                                                height: 40.h,
+                                                width: 160.w,
+                                                height: 35.h,
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     TextBody14(
                                                       'تسجيل الخروج',
@@ -472,34 +537,66 @@ class OthersScreen extends StatelessWidget {
               top: 135.h,
               child: Hero(
                 tag: 'avatar',
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.secondaryColor,
-                      width: 2.w,
+                child: GestureDetector(
+                  onTap: () {
+                    if (isLoggedIn) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.r)),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12.r),
+                                child: AuthCubit.get(context).selectedImage ==
+                                        null
+                                    ? CachedNetworkImage(
+                                        imageUrl: SharedHelper.getData(
+                                                SharedKeys.avatar)
+                                            .replaceFirst(
+                                                'http://', 'https://'),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.file(
+                                        AuthCubit.get(context).selectedImage!,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            );
+                          });
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.secondaryColor,
+                        width: 2.w,
+                      ),
                     ),
-                  ),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    radius: 35.r,
-                    child: isLoggedIn
-                        ? ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl: SharedHelper.getData(SharedKeys.avatar)
-                                  .replaceFirst('http://', 'https://'),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      radius: 35.r,
+                      child: isLoggedIn
+                          ? ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    SharedHelper.getData(SharedKeys.avatar)
+                                        .replaceFirst('http://', 'https://'),
+                                height: 70.h,
+                                width: 70.w,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : ClipOval(
+                              child: Image.asset(
+                              AppAssets.avatar,
                               height: 70.h,
                               width: 70.w,
                               fit: BoxFit.cover,
-                            ),
-                          )
-                        : ClipOval(
-                            child: Image.asset(
-                            AppAssets.avatar,
-                            height: 70.h,
-                            width: 70.w,
-                            fit: BoxFit.cover,
-                          )),
+                            )),
+                    ),
                   ),
                 ),
               ),

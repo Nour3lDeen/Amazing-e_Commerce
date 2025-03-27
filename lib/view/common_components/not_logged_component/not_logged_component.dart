@@ -97,7 +97,7 @@ class NotLoggedComponent extends StatelessWidget {
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
-                            color: AppColors.primaryColor, width: 1)),
+                            color: AppColors.primaryColor)),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

@@ -17,39 +17,28 @@ class SeasonsDropDown extends StatelessWidget {
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         final cubit = ProductsCubit.get(context);
+
+
+        final allSeasons = [
+          {'name': 'الكل', 'index': -1},
+          ...List.generate(
+            cubit.seasons.length,
+                (index) => {'name': cubit.seasons[index].name, 'index': index},
+          ),
+        ];
+
         return Padding(
           padding: EdgeInsets.only(right: 4.w),
-          child: DropdownButton(
-            items: [
-              DropdownMenuItem(
-                value: 0,
+          child: DropdownButton<int>(
+            items: allSeasons.map((season) {
+              return DropdownMenuItem<int>(
+                value: season['index'] as int,
                 child: TextBody14(
-                  cubit.seasons[0],
+                  season['name'] as String,
                   color: AppColors.black,
                 ),
-              ),
-              DropdownMenuItem(
-                value: 1,
-                child: TextBody14(
-                  cubit.seasons[1],
-                  color: AppColors.black,
-                ),
-              ),
-              DropdownMenuItem(
-                value: 2,
-                child: TextBody14(
-                  cubit.seasons[2],
-                  color: AppColors.black,
-                ),
-              ),
-              DropdownMenuItem(
-                value: 3,
-                child: TextBody14(
-                  cubit.seasons[3],
-                  color: AppColors.black,
-                ),
-              ),
-            ],
+              );
+            }).toList(),
             onChanged: (value) {
               cubit.changeSeason(value!);
             },
@@ -64,13 +53,10 @@ class SeasonsDropDown extends StatelessWidget {
                 color: HexColor('#63C2B1'),
                 border: Border.all(
                   color: AppColors.primaryColor,
-                  width: 1,
-                  style: BorderStyle.solid,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    spreadRadius: 0,
+                    color: Colors.black.withValues(alpha: 0.25), // Fixed opacity issue
                     blurRadius: 10,
                     offset: const Offset(0, 1),
                   ),
@@ -78,11 +64,12 @@ class SeasonsDropDown extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextBody12(
-                    cubit.seasons[cubit.selectedIndexSeason],
+                    cubit.selectedIndexSeason == -1
+                        ? 'الكل'
+                        : cubit.seasons[cubit.selectedIndexSeason].name!,
                     color: AppColors.white,
                   ),
                   SvgPicture.asset(

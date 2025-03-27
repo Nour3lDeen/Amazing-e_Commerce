@@ -1,3 +1,4 @@
+import 'package:ecommerce/view_model/cubits/products/products_cubit.dart';
 import 'package:ecommerce/view_model/utils/Texts/Texts.dart';
 import 'package:ecommerce/view_model/utils/app_colors/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../view_model/cubits/brands/brand_cubit.dart';
 import '../../../../view_model/data/local/shared_helper.dart';
@@ -26,79 +28,75 @@ class FavouritesScreen extends StatelessWidget {
           body: Stack(children: [
             Container(
               padding: EdgeInsets.symmetric(
-                 horizontal: 16.w,
+                  horizontal: 16.w,
                   vertical: SharedHelper.getData(SharedKeys.platform) == 'ios'
                       ? 40.h
-                      : 8.h),
+                      : 30.h),
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(AppAssets.back),
-                    fit: BoxFit.cover,
-                  )),
+                image: AssetImage(AppAssets.back),
+                fit: BoxFit.cover,
+              )),
               child: ListView(
                 controller: brandCubit.scrollController,
+                padding: EdgeInsets.only(top: 50.h),
                 clipBehavior: Clip.none,
                 children: [
-                  Center(
-                    child: SingleChildScrollView(
-                      clipBehavior: Clip.none,
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-
-                        spacing: 4.w,
-                        children: List.generate(
-                          4,
-                              (index) => Container(
-                                width: 70.w,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12.w, vertical: 8.sp),
-                            decoration: BoxDecoration(
-                              gradient: index == 0
-                                  ? LinearGradient(colors: [
-                                HexColor('#49F2D5'),
-                                HexColor('#09AC90'),
-                              ])
-                                  : null,
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(
-                                color: AppColors.primaryColor,
-                                width: 1,
-                              ),
+                  BlocBuilder<ProductsCubit, ProductsState>(
+                    builder: (context, state) {
+                      final productsCubit = ProductsCubit.get(context);
+                      if (state is SectionLoadingState ||
+                          state is GetFavoritesLoadingState) {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: 250.h,
                             ),
-                            child: Center(
-                              child: TextBody12(
-                                index == 0 ? 'الكل' : 'رجالي',
-                                color: index == 0
-                                    ? AppColors.white
-                                    : AppColors.black,
-                              ),
+                            Center(
+                              child: LoadingAnimationWidget.inkDrop(
+                                  color: AppColors.primaryColor, size: 25.sp),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 16.w,
-                      runSpacing: 16.h,
-                      children: List.generate(
-                        50,
+                          ],
+                        );
+                      }
+                      if (productsCubit.favorites.isEmpty) {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: 250.h,
+                            ),
+                            Center(
+                                child: TextTitle(
+                              'لا يوجد منتجات مفضلة',
+                              color: AppColors.primaryColor,
+                            )),
+                          ],
+                        );
+                      }
+                      return Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          spacing: 16.w,
+                          runSpacing: 16.h,
+                          children: List.generate(
+                            productsCubit.favorites.length,
                             (index) => ProductCard(
-                            productId: index,
-                            hasDiscount: false,
-                            title: 'قميص كاروهات',
-                            image:
-                            'http://minscp.com/ecom/backend/public/storage/801/0U4A5271.jpg',
-                            fromHome: true),
-                      ))
+                              productId: productsCubit.favorites[index].id!,
+                              title: productsCubit.favorites[index].name ?? '',
+                              image: productsCubit.favorites[index].colors?[0]
+                                      .images?[0].url ??
+                                  'https://img.freepik.com/photos-gratuite/iguane-jaune-gros-plan-visage-iguane-albinos-gros-plan_488145-3482.jpg?t=st=1742817188~exp=1742820788~hmac=7c1d0ef9f488f3613d3b8042e3914692fcaf17b5c84b33c95cceb96a1a3e737a&w=996',
+                              fromHome: false,
+                              product: productsCubit.favorites[index],
+                            ),
+                          ));
+                    },
+                  )
                 ],
               ),
             ),
-            CustomAppBar(
+            const CustomAppBar(
               title: 'منتجاتك المفضلة',
               isOffers: false,
               hasSeasonsDropDown: false,
@@ -112,12 +110,11 @@ class FavouritesScreen extends StatelessWidget {
                   padding: EdgeInsets.only(right: 8.w),
                   child: Container(
                     decoration:
-                    BoxDecoration(shape: BoxShape.circle, boxShadow: [
+                        BoxDecoration(shape: BoxShape.circle, boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.15),
-                        spreadRadius: 0,
                         blurRadius: 8,
-                        offset: Offset(0, 1),
+                        offset: const Offset(0, 1),
                       ),
                     ]),
                     child: SvgPicture.asset(
